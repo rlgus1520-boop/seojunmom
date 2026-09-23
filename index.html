@@ -4,20 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>서준엄마네</title>
-<meta name="description" content="가족들이 먹는다는 마음으로 검증한 제품만 판매합니다. 서준엄마네 추천 상품과 카테고리를 한눈에 보고 스마트스토어에서 구매하세요.">
+<meta name="description" content="가족이 먹는다는 마음으로 검증한 제품만 판매합니다. 서준엄마네 추천 제품과 카테고리를 한눈에 보고 스마트스토어에서 구매하세요.">
 <meta property="og:title" content="서준엄마네">
-<meta property="og:description" content="우리는 싸서 판매하지 않습니다. 검증해서 판매합니다.">
+<meta property="og:description" content="우리는 '싸게'만 팔지 않습니다. 검증해서 판매합니다.">
 <meta property="og:image" content="assets/brand/logo-vertical.png">
 <meta name="theme-color" content="#FF850D">
 <link rel="icon" href="assets/brand/symbol.png" type="image/png">
 <link rel="apple-touch-icon" href="assets/brand/symbol.png">
 <style>
-/* ---------- 서체 (assets/fonts, OFL) ---------- */
-@font-face{
-  font-family:"Jiugae";
-  src:url("assets/fonts/HakgyoansimJiugae.woff2") format("woff2");
-  font-weight:400;font-display:swap;
-}
+/* ---------- 서체: Pretendard 단일 (OFL), 자간 -20 ---------- */
 @font-face{
   font-family:"Pretendard";
   src:url("assets/fonts/PretendardVariable.woff2") format("woff2-variations");
@@ -27,19 +22,21 @@
 /* ---------- 브랜드 토큰 (서준엄마네 가이드라인) ---------- */
 :root{
   --tangerine:#FF850D;      /* Main · Warm Tangerine */
-  --tangerine-deep:#E0700A; /* 눌렀을 때 */
-  --tangerine-40:#FFCE9E;   /* 명도 변형 40% */
-  --tangerine-12:#FFF1E3;   /* 명도 변형 12% */
+  --tangerine-deep:#E86F00; /* 눌렀을 때 / 그라데이션 끝 */
+  --tangerine-40:#FFCE9E;
+  --tangerine-12:#FFF1E3;
+  --tangerine-6:#FFF8F1;
   --black:#232323;          /* Seojun Mom Black */
   --gray:#C8C8C6;           /* Seojun Mom Gray */
   --gray-text:#7A7772;
+  --gray-strike:#A9A5A0;
   --white:#FFFFFF;
   --line:#EEE7DF;
-  --ground:#FBF3EA;         /* 데스크탑에서 폰 화면 바깥 바닥 */
-  --display:"Jiugae","Pretendard",system-ui,sans-serif;
+  --ground:#FBF3EA;
   --body:"Pretendard",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
   --radius:14px;
   --gutter:20px;
+  --hero-h:480px;           /* 배너 높이 (요청: 474~500px) */
   color-scheme:light;
 }
 
@@ -48,15 +45,16 @@ html{-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--ground);color:var(--black);
   font-family:var(--body);font-weight:500;font-size:15px;line-height:1.55;
+  letter-spacing:-0.02em;            /* 자간 -20 */
   word-break:keep-all;overflow-wrap:anywhere;
 }
 img{display:block;max-width:100%}
-.gallery li,.products li,.cats li{min-width:0}
 a{color:inherit;text-decoration:none}
-button{font:inherit}
+button{font:inherit;letter-spacing:inherit}
 :focus-visible{outline:3px solid var(--tangerine);outline-offset:2px}
+.gallery li,.products li,.cats li{min-width:0}
 
-/* 폰 화면 폭 고정: 모바일에선 전체, 데스크탑에선 가운데 480px */
+/* 폰 화면 폭: 모바일에선 전체, 데스크탑에선 가운데 480px */
 .phone{max-width:480px;margin:0 auto;background:var(--white);min-height:100dvh;
   box-shadow:0 0 0 1px var(--line)}
 @media (min-width:520px){.phone{margin-block:24px;border-radius:28px;overflow:hidden}}
@@ -73,68 +71,100 @@ button{font:inherit}
   padding:8px 12px;border:1.5px solid var(--tangerine);border-radius:999px;
 }
 
-/* ---------- 메인 배너 ---------- */
-.hero{position:relative}
-.hero .photo{aspect-ratio:4/3;width:100%;object-fit:cover}
-.hero .thesis{
-  background:var(--tangerine);color:var(--white);
-  padding:28px var(--gutter) 30px;
+/* ---------- 메인 배너: 왼쪽 문구 고정 + 오른쪽 사진 자동 교체 ---------- */
+.hero{position:relative;height:var(--hero-h);overflow:hidden;background:var(--tangerine-12)}
+.hero .slides{position:absolute;inset:0}
+.hero .slides img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:78% 50%;
+  opacity:0;transition:opacity .7s ease;
 }
-.hero h1{
-  font-family:var(--display);font-weight:400;
-  font-size:31px;line-height:1.25;margin:0 0 14px;letter-spacing:-.01em;
-  text-wrap:balance;white-space:pre-line;
+.hero .slides img.is-active{opacity:1}
+.hero .veil{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,
+    rgba(255,241,227,1) 0%, rgba(255,241,227,.96) 34%,
+    rgba(255,241,227,.55) 52%, rgba(255,241,227,0) 70%);
 }
-.hero p{margin:0;font-size:15px;line-height:1.6;opacity:.95;white-space:pre-line}
+.hero .copy{
+  position:absolute;left:var(--gutter);right:38%;top:50%;transform:translateY(-52%);
+}
+.hero .eyebrow{margin:0 0 10px;font-size:14px;font-weight:500;color:var(--gray-text);white-space:pre-line}
+.hero h1{margin:0 0 14px;font-size:31px;line-height:1.22;font-weight:800;white-space:pre-line;text-wrap:balance}
+.hero .sub{margin:0;font-size:13px;line-height:1.6;color:var(--gray-text);white-space:pre-line}
+.hero .dots{
+  position:absolute;left:0;right:0;bottom:18px;display:flex;justify-content:center;gap:6px;margin:0;padding:0;list-style:none;
+}
+.hero .dots button{
+  width:7px;height:7px;border-radius:50%;border:0;padding:0;background:var(--gray);cursor:pointer;
+}
+.hero .dots button.is-active{background:var(--tangerine);width:18px;border-radius:4px}
 
-/* ---------- 공통 섹션 ---------- */
-.section{padding:36px var(--gutter) 8px}
-.section + .section{padding-top:28px}
+/* ---------- 공통 섹션 제목: 번호만 굵고 주황 ---------- */
+.section{padding:34px var(--gutter) 8px}
+.section + .section{padding-top:26px}
 .section h2{
-  font-family:var(--display);font-weight:400;
-  font-size:26px;line-height:1.2;margin:0 0 6px;color:var(--black);
+  display:flex;align-items:baseline;gap:8px;
+  font-size:21px;line-height:1.2;font-weight:700;margin:0 0 6px;color:var(--black);
 }
+.section h2 .num{font-size:24px;font-weight:900;color:var(--tangerine);letter-spacing:-0.03em}
 .section .lead{margin:0 0 18px;color:var(--gray-text);font-size:14px}
 
-/* ---------- 검증 프로세스 (순서가 있는 내용이라 번호를 씁니다) ---------- */
+/* ---------- 01 검증 프로세스: 번호 · 제목 · 설명 한 줄 ---------- */
 .steps{list-style:none;margin:0;padding:0;counter-reset:step}
 .steps li{
-  position:relative;display:grid;grid-template-columns:40px 1fr;column-gap:14px;
-  padding-block:12px;
+  display:grid;grid-template-columns:28px minmax(88px,auto) 1fr;column-gap:10px;align-items:start;
+  padding-block:11px;border-top:1px solid var(--line);
 }
+.steps li:first-child{border-top:0}
 .steps li::before{
   counter-increment:step;content:counter(step);
-  font-family:var(--display);font-size:20px;line-height:40px;text-align:center;
-  width:40px;height:40px;border-radius:50%;
-  background:var(--tangerine);color:var(--white);
+  width:28px;height:28px;border-radius:50%;line-height:28px;text-align:center;
+  font-size:15px;font-weight:800;background:var(--tangerine);color:var(--white);
 }
-.steps li + li::after{
-  content:"";position:absolute;left:19px;top:-8px;height:20px;
-  border-left:2px dashed var(--tangerine-40);
-}
-.steps li:last-child::before{background:var(--black)}
-.steps strong{display:block;font-size:17px;font-weight:800;margin:6px 0 2px}
-.steps span{color:var(--gray-text);font-size:14px}
+.steps strong{font-size:16px;font-weight:800;line-height:28px}
+.steps span{font-size:13px;line-height:1.5;color:var(--gray-text);padding-top:5px}
 
-/* ---------- 검증 현장 사진 ---------- */
-.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+/* ---------- 02 실제 검증 현장: 가로 스크롤 ---------- */
+.gallery-wrap{position:relative;margin-inline:calc(var(--gutter) * -1)}
+.gallery{
+  display:flex;gap:12px;margin:0;padding:0 var(--gutter);list-style:none;
+  overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.gallery::-webkit-scrollbar{display:none}
+.gallery li{flex:0 0 74%;scroll-snap-align:start}
 .gallery figure{margin:0}
-.gallery img{aspect-ratio:1;object-fit:cover;width:100%;border-radius:var(--radius);background:var(--tangerine-12)}
-.gallery figcaption{font-size:13px;color:var(--gray-text);margin-top:6px}
-.gallery li:first-child{grid-column:1/-1}
-.gallery li:first-child img{aspect-ratio:3/2}
+.gallery img{aspect-ratio:5/4;width:100%;object-fit:cover;border-radius:16px;background:var(--tangerine-12)}
+.gallery figcaption{font-size:13px;font-weight:600;color:var(--tangerine);text-align:center;margin-top:8px}
+.gallery-wrap .arrow{
+  position:absolute;top:calc(37% - 16px);width:32px;height:32px;border-radius:50%;border:0;
+  background:var(--tangerine);color:var(--white);display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(35,35,35,.18);cursor:pointer;z-index:2;
+}
+.gallery-wrap .arrow svg{width:14px;height:14px}
+.gallery-wrap .arrow.prev{left:6px}
+.gallery-wrap .arrow.next{right:6px}
+.gallery-wrap .arrow:disabled{opacity:.35;cursor:default}
+.gallery-track{
+  position:relative;height:4px;border-radius:2px;background:var(--line);
+  margin:14px var(--gutter) 0;overflow:hidden;
+}
+.gallery-track .thumb{position:absolute;top:0;bottom:0;left:0;width:40%;border-radius:2px;background:var(--tangerine)}
 
-/* ---------- 추천 상품 ---------- */
-.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 12px;margin:0;padding:0;list-style:none}
+/* ---------- 03 추천 제품: 할인 전 가격 + 특별가 ---------- */
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px;margin:0;padding:0;list-style:none}
 .card{display:block;-webkit-tap-highlight-color:transparent}
 .card img{aspect-ratio:1;width:100%;object-fit:cover;border-radius:var(--radius);background:var(--tangerine-12)}
 .card .cat{display:inline-block;margin-top:10px;font-size:11px;font-weight:700;color:var(--tangerine);
   padding:2px 8px;border-radius:999px;background:var(--tangerine-12)}
 .card .name{display:block;font-size:15px;font-weight:700;line-height:1.35;margin-top:6px}
 .card .note{display:block;font-size:12px;color:var(--gray-text);margin-top:2px}
-.card .price{display:block;font-size:18px;font-weight:800;margin-top:6px;
-  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.card .price small{font-size:13px;font-weight:600;margin-left:1px}
+.card .pricing{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;margin-top:6px;
+  font-variant-numeric:tabular-nums}
+.card .was{font-size:13px;font-weight:500;color:var(--gray-strike);text-decoration:line-through}
+.card .tag{font-size:13px;font-weight:800;color:var(--tangerine)}
+.card .price{font-size:18px;font-weight:800}
+.card .price small{font-size:13px;font-weight:600}
 .card .go{
   display:flex;align-items:center;justify-content:center;
   height:40px;margin-top:8px;border-radius:10px;
@@ -142,19 +172,31 @@ button{font:inherit}
 }
 .card:active .go{background:var(--tangerine-deep)}
 
-/* ---------- 카테고리 ---------- */
+/* ---------- 04 카테고리: 아이콘 박스 + 이름 + 바로가기 ---------- */
 .cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
 .cats a{
-  display:block;padding:16px 16px 14px;border-radius:var(--radius);
-  background:var(--tangerine-12);border:1.5px solid transparent;min-height:84px;
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px 10px 10px;border-radius:12px;min-height:64px;
+  background:var(--tangerine-6);border:1px solid var(--tangerine-12);
 }
 .cats a:active{border-color:var(--tangerine)}
-.cats .cname{display:block;font-family:var(--display);font-size:22px;line-height:1.1;color:var(--tangerine)}
-.cats .cdesc{display:block;font-size:12px;color:var(--gray-text);margin-top:6px}
-.cats li.all{grid-column:1/-1}
-.cats li.all a{background:var(--black);text-align:center;min-height:0;padding-block:18px}
-.cats li.all .cname{color:var(--white)}
-.cats li.all .cdesc{color:var(--gray)}
+.cats .ico{
+  flex:none;width:44px;height:44px;border-radius:10px;background:var(--white);
+  border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--tangerine);
+  overflow:hidden;
+}
+.cats .ico svg{width:24px;height:24px}
+.cats .ico img{width:100%;height:100%;object-fit:cover}
+.cats .txt{min-width:0}
+.cats .cname{display:block;font-size:15px;font-weight:800;line-height:1.2}
+.cats .cgo{display:block;font-size:12px;color:var(--gray-text);margin-top:2px}
+.all-btn{
+  display:flex;align-items:center;justify-content:center;
+  height:52px;margin-top:14px;border-radius:14px;
+  background:linear-gradient(90deg,var(--tangerine),var(--tangerine-deep));
+  color:var(--white);font-size:16px;font-weight:800;
+}
+.all-btn:active{filter:brightness(.95)}
 
 /* ---------- 하단 ---------- */
 .footer{margin-top:36px;padding:28px var(--gutter) 40px;background:var(--tangerine-12)}
@@ -167,11 +209,11 @@ button{font:inherit}
 }
 .footer .actions a.primary{background:var(--tangerine);border-color:var(--tangerine);color:var(--white)}
 .footer .actions svg{width:20px;height:20px;flex:none}
-.footer .info{margin:22px 0 0;font-size:12px;line-height:1.7;color:var(--gray-text);text-align:center}
+.footer .info{margin:20px 0 0;font-size:12px;line-height:1.7;color:var(--gray-text);text-align:center}
 .footer .info b{color:var(--black);font-weight:700}
 
-@media (prefers-reduced-motion:no-preference){
-  .card .go,.cats a{transition:background-color .15s,border-color .15s}
+@media (prefers-reduced-motion:reduce){
+  .hero .slides img{transition:none}
 }
 </style>
 </head>
@@ -185,36 +227,49 @@ button{font:inherit}
     <a class="store-link" id="top-store" href="#" target="_blank" rel="noopener">스마트스토어</a>
   </header>
 
-  <section class="hero" id="top">
-    <img class="photo" id="hero-img" src="" alt="">
-    <div class="thesis">
+  <section class="hero" id="top" aria-roledescription="carousel" aria-label="대표 음식 사진">
+    <div class="slides" id="slides"></div>
+    <div class="veil" aria-hidden="true"></div>
+    <div class="copy">
+      <p class="eyebrow" id="hero-eyebrow"></p>
       <h1 id="hero-h1"></h1>
-      <p id="hero-sub"></p>
+      <p class="sub" id="hero-sub"></p>
     </div>
+    <ul class="dots" id="dots"></ul>
   </section>
 
   <section class="section" aria-labelledby="h-process">
-    <h2 id="h-process">이렇게 검증합니다</h2>
+    <h2 id="h-process"><span class="num">01</span>서준엄마네 검증 프로세스</h2>
     <p class="lead">다섯 단계를 모두 통과한 제품만 올립니다.</p>
     <ol class="steps" id="steps"></ol>
   </section>
 
   <section class="section" aria-labelledby="h-gallery">
-    <h2 id="h-gallery">실제 검증 현장</h2>
+    <h2 id="h-gallery"><span class="num">02</span>실제 검증 현장</h2>
     <p class="lead">제조사 방문, 조리 테스트, 창고까지 직접 확인합니다.</p>
-    <ul class="gallery" id="gallery"></ul>
+    <div class="gallery-wrap">
+      <button class="arrow prev" id="g-prev" type="button" aria-label="이전 사진">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <ul class="gallery" id="gallery"></ul>
+      <button class="arrow next" id="g-next" type="button" aria-label="다음 사진">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+    <div class="gallery-track" aria-hidden="true"><div class="thumb" id="g-thumb"></div></div>
   </section>
 
   <section class="section" aria-labelledby="h-products">
-    <h2 id="h-products">추천 상품</h2>
-    <p class="lead">상품을 누르면 스마트스토어 상품 페이지로 이동합니다.</p>
+    <h2 id="h-products"><span class="num">03</span>추천 제품</h2>
+    <p class="lead">제품을 누르면 스마트스토어 상품 페이지로 이동합니다.</p>
     <ul class="products" id="products"></ul>
   </section>
 
   <section class="section" aria-labelledby="h-cats">
-    <h2 id="h-cats">카테고리</h2>
+    <h2 id="h-cats"><span class="num">04</span>카테고리</h2>
     <p class="lead">원하는 종류를 골라 바로 둘러보세요.</p>
     <ul class="cats" id="cats"></ul>
+    <a class="all-btn" id="all-btn" href="#" target="_blank" rel="noopener">전체 상품 보러가기</a>
   </section>
 
   <footer class="footer">
@@ -241,27 +296,59 @@ button{font:inherit}
   }
   function won(n){ return Number(n).toLocaleString('ko-KR'); }
   function ext(a){ a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); return a; }
+  var storeMain = (S.store && S.store.main) || '#';
+  var storeAll  = (S.store && (S.store.all || S.store.main)) || '#';
 
-  /* 상단 스토어 버튼 */
-  document.getElementById('top-store').href = (S.store && S.store.main) || '#';
+  /* 상단 스토어 버튼 / 전체 상품 버튼 */
+  document.getElementById('top-store').href = storeMain;
+  document.getElementById('all-btn').href = storeAll;
 
-  /* 메인 배너 */
-  if (S.hero) {
-    var hi = document.getElementById('hero-img');
-    hi.src = S.hero.image; hi.alt = S.hero.imageAlt || '';
-    document.getElementById('hero-h1').textContent = S.hero.headline || '';
-    document.getElementById('hero-sub').textContent = S.hero.sub || '';
+  /* ---------- 메인 배너 ---------- */
+  var H = S.hero || {};
+  document.getElementById('hero-eyebrow').textContent = H.eyebrow || '';
+  document.getElementById('hero-h1').textContent = H.headline || '';
+  document.getElementById('hero-sub').textContent = H.sub || '';
+  var slidesBox = document.getElementById('slides');
+  var dotsBox = document.getElementById('dots');
+  var imgs = H.images || [];
+  var slides = imgs.map(function(im, i){
+    var img = el('img', {src: im.src, alt: im.alt || '', 'aria-hidden': i ? 'true' : 'false'});
+    if (i === 0) img.className = 'is-active';
+    if (i > 0) img.setAttribute('loading','lazy');
+    slidesBox.appendChild(img);
+    return img;
+  });
+  var dots = imgs.map(function(im, i){
+    var b = el('button', {type:'button', 'aria-label': (i+1) + '번째 사진'});
+    if (i === 0) b.className = 'is-active';
+    b.addEventListener('click', function(){ show(i); restart(); });
+    dotsBox.appendChild(el('li', null, [b]));
+    return b;
+  });
+  var cur = 0, timer = null;
+  function show(i){
+    slides[cur].className = ''; dots[cur].className = '';
+    slides[cur].setAttribute('aria-hidden','true');
+    cur = (i + slides.length) % slides.length;
+    slides[cur].className = 'is-active'; dots[cur].className = 'is-active';
+    slides[cur].setAttribute('aria-hidden','false');
   }
+  function restart(){
+    if (timer) clearInterval(timer);
+    if (slides.length > 1) timer = setInterval(function(){ show(cur + 1); }, H.interval || 2000);
+  }
+  document.addEventListener('visibilitychange', function(){
+    if (document.hidden) { clearInterval(timer); timer = null; } else restart();
+  });
+  restart();
 
-  /* 검증 프로세스 */
+  /* ---------- 01 검증 프로세스 ---------- */
   var steps = document.getElementById('steps');
   (S.process||[]).forEach(function(p){
-    steps.appendChild(el('li', null, [
-      el('div', null, [ el('strong',{text:p.title}), el('span',{text:p.desc}) ])
-    ]));
+    steps.appendChild(el('li', null, [ el('strong',{text:p.title}), el('span',{text:p.desc}) ]));
   });
 
-  /* 현장 사진 */
+  /* ---------- 02 현장 사진 (가로 스크롤) ---------- */
   var g = document.getElementById('gallery');
   (S.gallery||[]).forEach(function(ph){
     g.appendChild(el('li', null, [
@@ -271,51 +358,76 @@ button{font:inherit}
       ])
     ]));
   });
+  var prev = document.getElementById('g-prev'), next = document.getElementById('g-next'), thumb = document.getElementById('g-thumb');
+  function stepW(){ var li = g.querySelector('li'); return li ? li.getBoundingClientRect().width + 12 : 200; }
+  function syncBar(){
+    var max = g.scrollWidth - g.clientWidth;
+    var ratio = g.clientWidth / g.scrollWidth;
+    thumb.style.width = Math.max(ratio * 100, 12) + '%';
+    thumb.style.left = (max > 0 ? (g.scrollLeft / max) * (100 - Math.max(ratio * 100, 12)) : 0) + '%';
+    prev.disabled = g.scrollLeft <= 2;
+    next.disabled = g.scrollLeft >= max - 2;
+  }
+  prev.addEventListener('click', function(){ g.scrollBy({left: -stepW(), behavior:'smooth'}); });
+  next.addEventListener('click', function(){ g.scrollBy({left:  stepW(), behavior:'smooth'}); });
+  g.addEventListener('scroll', syncBar, {passive:true});
+  window.addEventListener('resize', syncBar);
+  window.addEventListener('load', syncBar);
+  syncBar();
 
-  /* 추천 상품 */
+  /* ---------- 03 추천 제품 ---------- */
   var pl = document.getElementById('products');
   (S.products||[]).forEach(function(p){
-    var a = ext(el('a',{class:'card', href:p.url, 'aria-label': p.name + ' 스마트스토어에서 보기'}, [
+    var pricing = el('span',{class:'pricing'});
+    if (p.originalPrice && Number(p.originalPrice) > Number(p.price)) {
+      pricing.appendChild(el('span',{class:'was', text: won(p.originalPrice) + '원'}));
+      pricing.appendChild(el('span',{class:'tag', text:'특별가'}));
+    }
+    pricing.appendChild(el('span',{class:'price', html: won(p.price) + '<small>원</small>'}));
+    var a = ext(el('a',{class:'card', href:p.url, 'aria-label': p.name + ' 특가 구매하기'}, [
       el('img',{src:p.image, alt:'', loading:'lazy'}),
-      el('span',{class:'cat', text:p.category}),
+      p.category ? el('span',{class:'cat', text:p.category}) : null,
       el('span',{class:'name', text:p.name}),
       p.note ? el('span',{class:'note', text:p.note}) : null,
-      el('span',{class:'price', html: won(p.price) + '<small>원</small>'}),
-      el('span',{class:'go', text:'스마트스토어에서 구매'})
+      pricing,
+      el('span',{class:'go', text:'특가 구매하기'})
     ]));
     pl.appendChild(el('li', null, [a]));
   });
 
-  /* 카테고리 */
+  /* ---------- 04 카테고리 ---------- */
+  var ICONS = {
+    meat:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.5 4.5c3 0 5 2.2 5 5 0 4.5-5.5 10-10.5 10-2.8 0-5.5-1.8-5.5-4.7C4.5 9.5 10.5 4.5 15.5 4.5z"/><path d="M9 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/><path d="M4.8 15.3l-1.3 1.3M6.2 17.9l-1.3 1.3"/></svg>',
+    meal:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-5z"/><path d="M6 11c0-3.5 2.7-6 6-6s6 2.5 6 6"/><path d="M12 5V3"/><path d="M8 19v2M16 19v2"/></svg>',
+    cheese: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l17-5v4H3z"/><path d="M3 10v8h17v-9"/><circle cx="8" cy="14" r="1.2"/><circle cx="14" cy="13" r="1"/><circle cx="12" cy="16.5" r=".9"/></svg>',
+    bread:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a3 3 0 0 1 0-6h16a3 3 0 0 1 0 6v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7z"/><path d="M8 11v8M12 11v8M16 11v8"/></svg>',
+    fish:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-5 9-5 8 5 8 5-3 5-8 5-9-5-9-5z"/><path d="M20 12l2-3v6l-2-3z"/><circle cx="8" cy="11" r=".9" fill="currentColor" stroke="none"/></svg>',
+    leaf:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="M5 19c3-4 6-7 10-10"/></svg>'
+  };
   var cl = document.getElementById('cats');
   (S.categories||[]).forEach(function(c){
+    var ico = el('span',{class:'ico', 'aria-hidden':'true'});
+    if (c.icon) ico.appendChild(el('img',{src:c.icon, alt:''}));
+    else ico.innerHTML = ICONS[c.fallback] || ICONS.meal;
     cl.appendChild(el('li', null, [
-      ext(el('a',{href:c.url}, [ el('span',{class:'cname',text:c.name}), el('span',{class:'cdesc',text:c.desc||''}) ]))
+      ext(el('a',{href:c.url, 'aria-label': c.name + ' 바로가기'}, [
+        ico,
+        el('span',{class:'txt'}, [ el('span',{class:'cname',text:c.name}), el('span',{class:'cgo',text:'바로가기 ›'}) ])
+      ]))
     ]));
   });
-  cl.appendChild(el('li',{class:'all'}, [
-    ext(el('a',{href:(S.store && (S.store.all || S.store.main)) || '#'}, [
-      el('span',{class:'cname',text:'전체보기'}),
-      el('span',{class:'cdesc',text:'스마트스토어 전체 상품'})
-    ]))
-  ]));
 
-  /* 하단 버튼 */
+  /* ---------- 하단 ---------- */
   var C = S.contact || {};
   var ac = document.getElementById('actions');
   var igIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>';
   var telIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
   var bagIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
-  ac.appendChild(ext(el('a',{class:'primary', href:(S.store && S.store.main) || '#', html: bagIcon + '<span>스마트스토어 전체보기</span>'})));
+  ac.appendChild(ext(el('a',{class:'primary', href:storeMain, html: bagIcon + '<span>스마트스토어 전체보기</span>'})));
   if (C.instagram) ac.appendChild(ext(el('a',{href:C.instagram, html: igIcon + '<span>인스타그램</span>'})));
   if (C.phone) ac.appendChild(el('a',{href:'tel:' + C.phone.replace(/[^0-9+]/g,''), html: telIcon + '<span>고객센터 ' + C.phone + '</span>'}));
-
   var info = document.getElementById('info');
-  var lines = [];
-  if (C.hours) lines.push('<b>고객센터</b> ' + C.hours);
-  if (C.company) lines.push(C.company + (C.business ? ' · ' + C.business : ''));
-  if (C.address) lines.push(C.address);
-  info.innerHTML = lines.join('<br>');
+  info.innerHTML = C.hours ? '<b>고객센터</b> ' + C.hours : '';
 })();
 </script>
 </body>

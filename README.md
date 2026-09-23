@@ -10,19 +10,23 @@
 | `data.js` | 문구 · 상품 · 가격 · 링크 · 카테고리 · 연락처 | **예. 이 파일만 고치면 됩니다.** |
 | `index.html` | 화면 디자인과 동작 | 아니오 |
 | `assets/products/` | 상품 사진 (정사각형) | 상품 추가 시 사진만 넣기 |
+| `assets/banner/` | 메인 배너 사진 3장 (가로형, 2초마다 교체) | 사진 교체 시 |
+| `assets/icons/` | 카테고리 아이콘 (정사각형 PNG) | 아이콘 전달받으면 넣기 |
 | `assets/photos/` | 검증 현장 사진 | 사진 교체 시 |
 | `assets/brand/` | 로고 | 아니오 |
-| `assets/fonts/` | 학교안심 지우개체, Pretendard (둘 다 무료 OFL 라이선스) | 아니오 |
+| `assets/fonts/` | Pretendard (무료 OFL 라이선스) | 아니오 |
 | `qr/` | 인쇄용 QR코드 | 아니오 |
 
 ## 상품·가격·링크 바꾸는 법
 
 1. `data.js` 를 메모장이나 VS Code로 엽니다.
-2. `products` 목록에서 상품명(`name`), 가격(`price`, 숫자만), 링크(`url`)를 고칩니다.
+2. `products` 목록에서 상품명(`name`), 할인 전 가격(`originalPrice`), 특별가(`price`), 링크(`url`)를 고칩니다. 할인이 없으면 `originalPrice` 줄을 지웁니다.
+   추천 제품은 6개 기준이며 한 달 주기로 교체합니다.
 3. 상품 사진을 바꾸려면 `assets/products/` 에 사진을 넣고 `image` 에 파일명을 적습니다.
 4. 저장한 뒤 아래 "반영하기" 순서를 따릅니다.
 
 카테고리 링크는 `categories`, 인스타그램·고객센터는 `contact`, 스토어 메인 주소는 `store` 에 있습니다.
+카테고리 아이콘 이미지를 받으면 `assets/icons/` 에 넣고 각 카테고리의 `icon` 에 파일 경로를 적습니다. 배너 사진은 `hero.images` 에서 바꿉니다.
 
 ## 반영하기 (GitHub Pages)
 
