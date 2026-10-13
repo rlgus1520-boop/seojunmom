@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>서준엄마네</title>
-<meta name="description" content="가족이 먹는다는 마음으로 검증한 제품만 판매합니다. 서준엄마네 추천 제품과 카테고리를 한눈에 보고 스마트스토어에서 구매하세요.">
+<meta name="description" content="맛있게 드시기만 하세요. 검증은 서준엄마네가 하겠습니다. 검증된 제품과 카테고리를 한눈에 보고 스마트스토어에서 구매하세요.">
 <meta property="og:title" content="서준엄마네">
-<meta property="og:description" content="우리는 '싸게'만 팔지 않습니다. 검증해서 판매합니다.">
+<meta property="og:description" content="맛있게 드시기만 하세요. 검증은 저희가 하겠습니다.">
 <meta property="og:image" content="assets/brand/logo-vertical.png">
 <meta name="theme-color" content="#FF850D">
 <link rel="icon" href="assets/brand/symbol.png" type="image/png">
@@ -22,7 +22,7 @@
 /* ---------- 브랜드 토큰 (서준엄마네 가이드라인) ---------- */
 :root{
   --tangerine:#FF850D;      /* Main · Warm Tangerine */
-  --tangerine-deep:#E86F00; /* 눌렀을 때 / 그라데이션 끝 */
+  --tangerine-deep:#E86F00;
   --tangerine-40:#FFCE9E;
   --tangerine-12:#FFF1E3;
   --tangerine-6:#FFF8F1;
@@ -36,7 +36,6 @@
   --body:"Pretendard",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
   --radius:14px;
   --gutter:20px;
-  --hero-h:480px;           /* 배너 높이 (요청: 474~500px) */
   color-scheme:light;
 }
 
@@ -59,40 +58,44 @@ button{font:inherit;letter-spacing:inherit}
   box-shadow:0 0 0 1px var(--line)}
 @media (min-width:520px){.phone{margin-block:24px;border-radius:28px;overflow:hidden}}
 
-/* ---------- 상단 바 ---------- */
+/* ---------- 상단 바: 로고 중앙 정렬 (기존 1.5배) ---------- */
 .top{
   position:sticky;top:0;z-index:5;background:var(--white);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:12px var(--gutter);border-bottom:1px solid var(--line);
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  padding:10px var(--gutter);border-bottom:1px solid var(--line);
 }
-.top img{height:34px;width:auto}
+.top .logo-link{grid-column:2;display:block}
+.top img{height:51px;width:auto}
 .top .store-link{
+  grid-column:3;justify-self:end;
   font-size:13px;font-weight:700;color:var(--tangerine);
   padding:8px 12px;border:1.5px solid var(--tangerine);border-radius:999px;
 }
 
-/* ---------- 메인 배너: 왼쪽 문구 고정 + 오른쪽 사진 자동 교체 ---------- */
-.hero{position:relative;height:var(--hero-h);overflow:hidden;background:var(--tangerine-12)}
+/* ---------- 메인 배너: 사진 비율(780x474) 그대로, 왼쪽 문구 고정 + 사진 자동 교체 ---------- */
+.hero{
+  position:relative;width:100%;aspect-ratio:780/474;overflow:hidden;background:var(--tangerine-12);
+  container-type:inline-size;
+}
 .hero .slides{position:absolute;inset:0}
 .hero .slides img{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:78% 50%;
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   opacity:0;transition:opacity .7s ease;
 }
 .hero .slides img.is-active{opacity:1}
-.hero .veil{
-  position:absolute;inset:0;
-  background:linear-gradient(90deg,
-    rgba(255,241,227,1) 0%, rgba(255,241,227,.96) 34%,
-    rgba(255,241,227,.55) 52%, rgba(255,241,227,0) 70%);
-}
 .hero .copy{
-  position:absolute;left:var(--gutter);right:38%;top:50%;transform:translateY(-52%);
+  position:absolute;left:5.5cqw;right:30%;top:50%;transform:translateY(-50%);
 }
-.hero .eyebrow{margin:0 0 10px;font-size:14px;font-weight:500;color:var(--gray-text);white-space:pre-line}
-.hero h1{margin:0 0 14px;font-size:31px;line-height:1.22;font-weight:800;white-space:pre-line;text-wrap:balance}
-.hero .sub{margin:0;font-size:13px;line-height:1.6;color:var(--gray-text);white-space:pre-line}
+.hero h1{
+  margin:0 0 3cqw;font-size:4.9cqw;line-height:1.3;font-weight:800;
+  letter-spacing:-0.03em;white-space:pre-line;
+}
+.hero .sub{
+  margin:0;font-size:3.2cqw;line-height:1.55;font-weight:600;color:var(--black);
+  letter-spacing:-0.02em;white-space:pre-line;
+}
 .hero .dots{
-  position:absolute;left:0;right:0;bottom:18px;display:flex;justify-content:center;gap:6px;margin:0;padding:0;list-style:none;
+  position:absolute;left:0;right:0;bottom:3cqw;display:flex;justify-content:center;gap:6px;margin:0;padding:0;list-style:none;
 }
 .hero .dots button{
   width:7px;height:7px;border-radius:50%;border:0;padding:0;background:var(--gray);cursor:pointer;
@@ -100,29 +103,35 @@ button{font:inherit;letter-spacing:inherit}
 .hero .dots button.is-active{background:var(--tangerine);width:18px;border-radius:4px}
 
 /* ---------- 공통 섹션 제목: 번호만 굵고 주황 ---------- */
-.section{padding:34px var(--gutter) 8px}
+.section{padding:30px var(--gutter) 8px}
 .section + .section{padding-top:26px}
 .section h2{
   display:flex;align-items:baseline;gap:8px;
-  font-size:21px;line-height:1.2;font-weight:700;margin:0 0 6px;color:var(--black);
+  font-size:20px;line-height:1.2;font-weight:700;margin:0 0 16px;color:var(--black);
 }
-.section h2 .num{font-size:24px;font-weight:900;color:var(--tangerine);letter-spacing:-0.03em}
-.section .lead{margin:0 0 18px;color:var(--gray-text);font-size:14px}
+.section h2 .num{font-size:23px;font-weight:900;color:var(--tangerine);letter-spacing:-0.03em}
 
-/* ---------- 01 검증 프로세스: 번호 · 제목 · 설명 한 줄 ---------- */
-.steps{list-style:none;margin:0;padding:0;counter-reset:step}
-.steps li{
-  display:grid;grid-template-columns:28px minmax(88px,auto) 1fr;column-gap:10px;align-items:start;
-  padding-block:11px;border-top:1px solid var(--line);
+/* ---------- 01 검증된 제품: 할인 전 가격 + 특별가 ---------- */
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px;margin:0;padding:0;list-style:none}
+.card{display:block;-webkit-tap-highlight-color:transparent;container-type:inline-size}
+.card img{aspect-ratio:1;width:100%;object-fit:cover;border-radius:var(--radius);background:var(--tangerine-12)}
+.card .cat{display:inline-block;margin-top:10px;font-size:11px;font-weight:700;color:var(--tangerine);
+  padding:2px 8px;border-radius:999px;background:var(--tangerine-12)}
+.card .name{display:block;font-size:14px;font-weight:700;line-height:1.35;margin-top:6px}
+.card .note{display:block;font-size:12px;color:var(--gray-text);margin-top:3px;line-height:1.4}
+.card .pricing{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;margin-top:6px;
+  font-variant-numeric:tabular-nums}
+.card .was{font-size:13px;font-weight:500;color:var(--gray-strike);text-decoration:line-through}
+.card .tag{font-size:13px;font-weight:800;color:var(--tangerine)}
+.card .price{font-size:18px;font-weight:800}
+.card .price small{font-size:13px;font-weight:600}
+@container (max-width:185px){.card .was{flex-basis:100%;line-height:1.3}}
+.card .go{
+  display:flex;align-items:center;justify-content:center;
+  height:40px;margin-top:8px;border-radius:10px;
+  background:var(--tangerine);color:var(--white);font-size:13px;font-weight:700;
 }
-.steps li:first-child{border-top:0}
-.steps li::before{
-  counter-increment:step;content:counter(step);
-  width:28px;height:28px;border-radius:50%;line-height:28px;text-align:center;
-  font-size:15px;font-weight:800;background:var(--tangerine);color:var(--white);
-}
-.steps strong{font-size:16px;font-weight:800;line-height:28px}
-.steps span{font-size:13px;line-height:1.5;color:var(--gray-text);padding-top:5px}
+.card:active .go{background:var(--tangerine-deep)}
 
 /* ---------- 02 실제 검증 현장: 가로 스크롤 ---------- */
 .gallery-wrap{position:relative;margin-inline:calc(var(--gutter) * -1)}
@@ -151,54 +160,30 @@ button{font:inherit;letter-spacing:inherit}
 }
 .gallery-track .thumb{position:absolute;top:0;bottom:0;left:0;width:40%;border-radius:2px;background:var(--tangerine)}
 
-/* ---------- 03 추천 제품: 할인 전 가격 + 특별가 ---------- */
-.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px;margin:0;padding:0;list-style:none}
-.card{display:block;-webkit-tap-highlight-color:transparent}
-.card img{aspect-ratio:1;width:100%;object-fit:cover;border-radius:var(--radius);background:var(--tangerine-12)}
-.card .cat{display:inline-block;margin-top:10px;font-size:11px;font-weight:700;color:var(--tangerine);
-  padding:2px 8px;border-radius:999px;background:var(--tangerine-12)}
-.card .name{display:block;font-size:15px;font-weight:700;line-height:1.35;margin-top:6px}
-.card .note{display:block;font-size:12px;color:var(--gray-text);margin-top:2px}
-.card .pricing{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;margin-top:6px;
-  font-variant-numeric:tabular-nums}
-.card .was{font-size:13px;font-weight:500;color:var(--gray-strike);text-decoration:line-through}
-.card .tag{font-size:13px;font-weight:800;color:var(--tangerine)}
-.card .price{font-size:18px;font-weight:800}
-.card .price small{font-size:13px;font-weight:600}
-.card .go{
-  display:flex;align-items:center;justify-content:center;
-  height:40px;margin-top:8px;border-radius:10px;
-  background:var(--tangerine);color:var(--white);font-size:13px;font-weight:700;
-}
-.card:active .go{background:var(--tangerine-deep)}
-
-/* ---------- 04 카테고리: 아이콘 박스 + 이름 + 바로가기 ---------- */
-.cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
+/* ---------- 03 카테고리: 이미지 아이콘 3열 카드 ---------- */
+.cats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0;padding:0;list-style:none}
 .cats a{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 12px 10px 10px;border-radius:12px;min-height:64px;
-  background:var(--tangerine-6);border:1px solid var(--tangerine-12);
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:10px 8px 12px;border-radius:16px;
+  background:var(--white);border:1px solid var(--line);
+  box-shadow:0 1px 4px rgba(35,35,35,.05);
 }
 .cats a:active{border-color:var(--tangerine)}
 .cats .ico{
-  flex:none;width:44px;height:44px;border-radius:10px;background:var(--white);
-  border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--tangerine);
-  overflow:hidden;
+  width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--tangerine-6);
 }
-.cats .ico svg{width:24px;height:24px}
 .cats .ico img{width:100%;height:100%;object-fit:cover}
-.cats .txt{min-width:0}
-.cats .cname{display:block;font-size:15px;font-weight:800;line-height:1.2}
-.cats .cgo{display:block;font-size:12px;color:var(--gray-text);margin-top:2px}
+.cats .cname{display:block;font-size:15px;font-weight:800;line-height:1.2;margin-top:10px}
+.cats .cgo{display:block;font-size:12px;color:var(--gray-text);margin-top:3px}
 .all-btn{
   display:flex;align-items:center;justify-content:center;
-  height:52px;margin-top:14px;border-radius:14px;
+  height:52px;margin-top:16px;border-radius:14px;
   background:linear-gradient(90deg,var(--tangerine),var(--tangerine-deep));
   color:var(--white);font-size:16px;font-weight:800;
 }
 .all-btn:active{filter:brightness(.95)}
 
-/* ---------- 하단 ---------- */
+/* ---------- 하단: 로고 + 고객센터 ---------- */
 .footer{margin-top:36px;padding:28px var(--gutter) 40px;background:var(--tangerine-12)}
 .footer .logo{width:120px;margin:0 auto 22px}
 .footer .actions{display:grid;gap:10px}
@@ -207,7 +192,6 @@ button{font:inherit;letter-spacing:inherit}
   height:52px;border-radius:12px;font-size:15px;font-weight:700;
   background:var(--white);border:1.5px solid var(--gray);
 }
-.footer .actions a.primary{background:var(--tangerine);border-color:var(--tangerine);color:var(--white)}
 .footer .actions svg{width:20px;height:20px;flex:none}
 .footer .info{margin:20px 0 0;font-size:12px;line-height:1.7;color:var(--gray-text);text-align:center}
 .footer .info b{color:var(--black);font-weight:700}
@@ -221,7 +205,7 @@ button{font:inherit;letter-spacing:inherit}
 <div class="phone">
 
   <header class="top">
-    <a href="#top" aria-label="서준엄마네 홈">
+    <a class="logo-link" href="#top" aria-label="서준엄마네 홈">
       <img src="assets/brand/logo-horizontal.png" alt="서준엄마네 SEOJUNMOM STORE">
     </a>
     <a class="store-link" id="top-store" href="#" target="_blank" rel="noopener">스마트스토어</a>
@@ -229,24 +213,20 @@ button{font:inherit;letter-spacing:inherit}
 
   <section class="hero" id="top" aria-roledescription="carousel" aria-label="대표 음식 사진">
     <div class="slides" id="slides"></div>
-    <div class="veil" aria-hidden="true"></div>
     <div class="copy">
-      <p class="eyebrow" id="hero-eyebrow"></p>
       <h1 id="hero-h1"></h1>
       <p class="sub" id="hero-sub"></p>
     </div>
     <ul class="dots" id="dots"></ul>
   </section>
 
-  <section class="section" aria-labelledby="h-process">
-    <h2 id="h-process"><span class="num">01</span>서준엄마네 검증 프로세스</h2>
-    <p class="lead">다섯 단계를 모두 통과한 제품만 올립니다.</p>
-    <ol class="steps" id="steps"></ol>
+  <section class="section" aria-labelledby="h-products">
+    <h2 id="h-products"><span class="num">01</span>검증된 제품 보러가기</h2>
+    <ul class="products" id="products"></ul>
   </section>
 
   <section class="section" aria-labelledby="h-gallery">
     <h2 id="h-gallery"><span class="num">02</span>실제 검증 현장</h2>
-    <p class="lead">제조사 방문, 조리 테스트, 창고까지 직접 확인합니다.</p>
     <div class="gallery-wrap">
       <button class="arrow prev" id="g-prev" type="button" aria-label="이전 사진">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
@@ -259,15 +239,8 @@ button{font:inherit;letter-spacing:inherit}
     <div class="gallery-track" aria-hidden="true"><div class="thumb" id="g-thumb"></div></div>
   </section>
 
-  <section class="section" aria-labelledby="h-products">
-    <h2 id="h-products"><span class="num">03</span>추천 제품</h2>
-    <p class="lead">제품을 누르면 스마트스토어 상품 페이지로 이동합니다.</p>
-    <ul class="products" id="products"></ul>
-  </section>
-
   <section class="section" aria-labelledby="h-cats">
-    <h2 id="h-cats"><span class="num">04</span>카테고리</h2>
-    <p class="lead">원하는 종류를 골라 바로 둘러보세요.</p>
+    <h2 id="h-cats"><span class="num">03</span>카테고리</h2>
     <ul class="cats" id="cats"></ul>
     <a class="all-btn" id="all-btn" href="#" target="_blank" rel="noopener">전체 상품 보러가기</a>
   </section>
@@ -299,13 +272,11 @@ button{font:inherit;letter-spacing:inherit}
   var storeMain = (S.store && S.store.main) || '#';
   var storeAll  = (S.store && (S.store.all || S.store.main)) || '#';
 
-  /* 상단 스토어 버튼 / 전체 상품 버튼 */
   document.getElementById('top-store').href = storeMain;
   document.getElementById('all-btn').href = storeAll;
 
   /* ---------- 메인 배너 ---------- */
   var H = S.hero || {};
-  document.getElementById('hero-eyebrow').textContent = H.eyebrow || '';
   document.getElementById('hero-h1').textContent = H.headline || '';
   document.getElementById('hero-sub').textContent = H.sub || '';
   var slidesBox = document.getElementById('slides');
@@ -314,7 +285,6 @@ button{font:inherit;letter-spacing:inherit}
   var slides = imgs.map(function(im, i){
     var img = el('img', {src: im.src, alt: im.alt || '', 'aria-hidden': i ? 'true' : 'false'});
     if (i === 0) img.className = 'is-active';
-    if (i > 0) img.setAttribute('loading','lazy');
     slidesBox.appendChild(img);
     return img;
   });
@@ -327,6 +297,7 @@ button{font:inherit;letter-spacing:inherit}
   });
   var cur = 0, timer = null;
   function show(i){
+    if (!slides.length) return;
     slides[cur].className = ''; dots[cur].className = '';
     slides[cur].setAttribute('aria-hidden','true');
     cur = (i + slides.length) % slides.length;
@@ -342,10 +313,24 @@ button{font:inherit;letter-spacing:inherit}
   });
   restart();
 
-  /* ---------- 01 검증 프로세스 ---------- */
-  var steps = document.getElementById('steps');
-  (S.process||[]).forEach(function(p){
-    steps.appendChild(el('li', null, [ el('strong',{text:p.title}), el('span',{text:p.desc}) ]));
+  /* ---------- 01 검증된 제품 ---------- */
+  var pl = document.getElementById('products');
+  (S.products||[]).forEach(function(p){
+    var pricing = el('span',{class:'pricing'});
+    if (p.originalPrice && Number(p.originalPrice) > Number(p.price)) {
+      pricing.appendChild(el('span',{class:'was', text: won(p.originalPrice) + '원'}));
+      pricing.appendChild(el('span',{class:'tag', text:'특별가'}));
+    }
+    pricing.appendChild(el('span',{class:'price', html: won(p.price) + '<small>원</small>'}));
+    var a = ext(el('a',{class:'card', href:p.url, 'aria-label': p.name + ' 특가 구매하기'}, [
+      el('img',{src:p.image, alt:'', loading:'lazy'}),
+      p.category ? el('span',{class:'cat', text:p.category}) : null,
+      el('span',{class:'name', text:p.name}),
+      p.note ? el('span',{class:'note', text:p.note}) : null,
+      pricing,
+      el('span',{class:'go', text:'특가 구매하기'})
+    ]));
+    pl.appendChild(el('li', null, [a]));
   });
 
   /* ---------- 02 현장 사진 (가로 스크롤) ---------- */
@@ -375,56 +360,24 @@ button{font:inherit;letter-spacing:inherit}
   window.addEventListener('load', syncBar);
   syncBar();
 
-  /* ---------- 03 추천 제품 ---------- */
-  var pl = document.getElementById('products');
-  (S.products||[]).forEach(function(p){
-    var pricing = el('span',{class:'pricing'});
-    if (p.originalPrice && Number(p.originalPrice) > Number(p.price)) {
-      pricing.appendChild(el('span',{class:'was', text: won(p.originalPrice) + '원'}));
-      pricing.appendChild(el('span',{class:'tag', text:'특별가'}));
-    }
-    pricing.appendChild(el('span',{class:'price', html: won(p.price) + '<small>원</small>'}));
-    var a = ext(el('a',{class:'card', href:p.url, 'aria-label': p.name + ' 특가 구매하기'}, [
-      el('img',{src:p.image, alt:'', loading:'lazy'}),
-      p.category ? el('span',{class:'cat', text:p.category}) : null,
-      el('span',{class:'name', text:p.name}),
-      p.note ? el('span',{class:'note', text:p.note}) : null,
-      pricing,
-      el('span',{class:'go', text:'특가 구매하기'})
-    ]));
-    pl.appendChild(el('li', null, [a]));
-  });
-
-  /* ---------- 04 카테고리 ---------- */
-  var ICONS = {
-    meat:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15.5 4.5c3 0 5 2.2 5 5 0 4.5-5.5 10-10.5 10-2.8 0-5.5-1.8-5.5-4.7C4.5 9.5 10.5 4.5 15.5 4.5z"/><path d="M9 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/><path d="M4.8 15.3l-1.3 1.3M6.2 17.9l-1.3 1.3"/></svg>',
-    meal:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11h16v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-5z"/><path d="M6 11c0-3.5 2.7-6 6-6s6 2.5 6 6"/><path d="M12 5V3"/><path d="M8 19v2M16 19v2"/></svg>',
-    cheese: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10l17-5v4H3z"/><path d="M3 10v8h17v-9"/><circle cx="8" cy="14" r="1.2"/><circle cx="14" cy="13" r="1"/><circle cx="12" cy="16.5" r=".9"/></svg>',
-    bread:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a3 3 0 0 1 0-6h16a3 3 0 0 1 0 6v7a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7z"/><path d="M8 11v8M12 11v8M16 11v8"/></svg>',
-    fish:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12s3.5-5 9-5 8 5 8 5-3 5-8 5-9-5-9-5z"/><path d="M20 12l2-3v6l-2-3z"/><circle cx="8" cy="11" r=".9" fill="currentColor" stroke="none"/></svg>',
-    leaf:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19C5 9 11 4 20 4c0 9-5 15-15 15z"/><path d="M5 19c3-4 6-7 10-10"/></svg>'
-  };
+  /* ---------- 03 카테고리 ---------- */
   var cl = document.getElementById('cats');
   (S.categories||[]).forEach(function(c){
     var ico = el('span',{class:'ico', 'aria-hidden':'true'});
-    if (c.icon) ico.appendChild(el('img',{src:c.icon, alt:''}));
-    else ico.innerHTML = ICONS[c.fallback] || ICONS.meal;
+    if (c.icon) ico.appendChild(el('img',{src:c.icon, alt:'', loading:'lazy'}));
     cl.appendChild(el('li', null, [
       ext(el('a',{href:c.url, 'aria-label': c.name + ' 바로가기'}, [
         ico,
-        el('span',{class:'txt'}, [ el('span',{class:'cname',text:c.name}), el('span',{class:'cgo',text:'바로가기 ›'}) ])
+        el('span',{class:'cname',text:c.name}),
+        el('span',{class:'cgo',text:'바로가기'})
       ]))
     ]));
   });
 
-  /* ---------- 하단 ---------- */
+  /* ---------- 하단: 고객센터 ---------- */
   var C = S.contact || {};
   var ac = document.getElementById('actions');
-  var igIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>';
   var telIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
-  var bagIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>';
-  ac.appendChild(ext(el('a',{class:'primary', href:storeMain, html: bagIcon + '<span>스마트스토어 전체보기</span>'})));
-  if (C.instagram) ac.appendChild(ext(el('a',{href:C.instagram, html: igIcon + '<span>인스타그램</span>'})));
   if (C.phone) ac.appendChild(el('a',{href:'tel:' + C.phone.replace(/[^0-9+]/g,''), html: telIcon + '<span>고객센터 ' + C.phone + '</span>'}));
   var info = document.getElementById('info');
   info.innerHTML = C.hours ? '<b>고객센터</b> ' + C.hours : '';
