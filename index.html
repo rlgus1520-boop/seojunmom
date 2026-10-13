@@ -113,13 +113,18 @@ button{font:inherit;letter-spacing:inherit}
 
 /* ---------- 01 검증된 제품: 할인 전 가격 + 특별가 ---------- */
 .products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 12px;margin:0;padding:0;list-style:none}
-.card{display:block;-webkit-tap-highlight-color:transparent;container-type:inline-size}
+/* 같은 줄 카드끼리 가격·버튼 높이를 맞춘다:
+   li 는 grid 가 늘려 준 높이를 그대로 쓰고, 카드는 세로 flex 로 만든 뒤
+   가격 블록에 margin-top:auto 를 줘서 가격+버튼을 항상 카드 바닥에 붙인다.
+   제목·설명 줄 수가 달라도 버튼 위치가 같아진다. */
+.products li{display:flex}
+.card{display:flex;flex-direction:column;flex:1;-webkit-tap-highlight-color:transparent;container-type:inline-size}
 .card img{aspect-ratio:1;width:100%;object-fit:cover;border-radius:var(--radius);background:var(--tangerine-12)}
-.card .cat{display:inline-block;margin-top:10px;font-size:11px;font-weight:700;color:var(--tangerine);
+.card .cat{display:inline-block;align-self:flex-start;margin-top:10px;font-size:11px;font-weight:700;color:var(--tangerine);
   padding:2px 8px;border-radius:999px;background:var(--tangerine-12)}
 .card .name{display:block;font-size:14px;font-weight:700;line-height:1.35;margin-top:6px}
 .card .note{display:block;font-size:12px;color:var(--gray-text);margin-top:3px;line-height:1.4}
-.card .pricing{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;margin-top:6px;
+.card .pricing{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px;margin-top:auto;padding-top:8px;
   font-variant-numeric:tabular-nums}
 .card .was{font-size:13px;font-weight:500;color:var(--gray-strike);text-decoration:line-through}
 .card .tag{font-size:13px;font-weight:800;color:var(--tangerine)}
