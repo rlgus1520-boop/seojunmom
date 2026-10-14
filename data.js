@@ -32,7 +32,7 @@ window.SITE = {
      구글 앱스 스크립트 "웹 앱" 주소(https://script.google.com/macros/s/.../exec)를 넣으면
      상품·카테고리 클릭이 시트의 '클릭 기록' 탭에 쌓이고 '클릭 집계' 탭에서 개수를 볼 수 있습니다.
      비워 두면 기록하지 않습니다. 공개돼도 괜찮은 주소입니다. (설치 방법: README) */
-  clickLog: "",
+  clickLog: "https://script.google.com/macros/s/AKfycbyUYDZxwK103rc4HvIP8ZcGfyylP5iZCTzTmslCN5ETnaktawL098E6rsatIni_YVuR/exec",
 
   /* ---------- 네이버 스마트스토어 유입 표시 ----------
      스마트스토어로 가는 링크 끝에 nt_source 등을 자동으로 붙입니다.
