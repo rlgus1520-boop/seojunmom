@@ -90,5 +90,20 @@ check('순서 0 이 1 보다 앞', prep0.map(p => p.name), ['B', 'A']);
 check('한국 시간 기준 날짜', S.todayKST(new Date(Date.UTC(2026, 9, 14, 16, 0))), '2026-10-15');
 check('한국 시간 자정 직전', S.todayKST(new Date(Date.UTC(2026, 9, 14, 14, 59))), '2026-10-14');
 
+// 9. 4단계: 네이버 유입 표시
+require('../js/track.js');
+const TR = globalThis.Track;
+const nc = { source: 'seojunmom_web', medium: 'flyer_qr' };
+check('스마트스토어 주소에 유입 표시 붙음',
+  TR.addNaverChannel('https://smartstore.naver.com/seojunmom/products/12924699024', nc, '갈비탕'),
+  'https://smartstore.naver.com/seojunmom/products/12924699024?nt_source=seojunmom_web&nt_medium=flyer_qr&nt_detail=%EA%B0%88%EB%B9%84%ED%83%95');
+check('이미 물음표가 있는 주소는 & 로 이어 붙임',
+  TR.addNaverChannel('https://smartstore.naver.com/seojunmom/category/ALL?cp=1', nc, ''),
+  'https://smartstore.naver.com/seojunmom/category/ALL?cp=1&nt_source=seojunmom_web&nt_medium=flyer_qr');
+check('네이버가 아닌 주소는 그대로', TR.addNaverChannel('https://example.com/a', nc, 'x'), 'https://example.com/a');
+check('이미 nt_source 가 있으면 그대로', TR.addNaverChannel('https://smartstore.naver.com/a?nt_source=etc', nc, 'x'), 'https://smartstore.naver.com/a?nt_source=etc');
+check('기능을 끄면(source 빈칸) 그대로', TR.addNaverChannel('https://smartstore.naver.com/a', { source: '' }, 'x'), 'https://smartstore.naver.com/a');
+check('잘못된 주소도 오류 없이 그대로', TR.addNaverChannel('오타', nc, 'x'), '오타');
+
 console.log(fail ? `\n실패 ${fail}개` : '\n모두 통과');
 process.exit(fail ? 1 : 0);

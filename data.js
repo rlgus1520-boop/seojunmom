@@ -28,6 +28,21 @@ window.SITE = {
     categories: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=1&single=true&output=csv"
   },
 
+  /* ---------- 클릭 기록 ----------
+     구글 앱스 스크립트 "웹 앱" 주소(https://script.google.com/macros/s/.../exec)를 넣으면
+     상품·카테고리 클릭이 시트의 '클릭 기록' 탭에 쌓이고 '클릭 집계' 탭에서 개수를 볼 수 있습니다.
+     비워 두면 기록하지 않습니다. 공개돼도 괜찮은 주소입니다. (설치 방법: README) */
+  clickLog: "",
+
+  /* ---------- 네이버 스마트스토어 유입 표시 ----------
+     스마트스토어로 가는 링크 끝에 nt_source 등을 자동으로 붙입니다.
+     스마트스토어 통계(마케팅분석 > 사용자정의채널)에서 이 페이지로 들어온 방문·주문을 따로 볼 수 있습니다.
+     끄려면 source 를 "" 로 바꾸세요. */
+  naverChannel: {
+    source: "seojunmom_web",   // 유입 이름
+    medium: "flyer_qr"         // 유입 경로 (전단지 QR)
+  },
+
   /* ---------- 스마트스토어 기본 주소 ---------- */
   store: {
     main: "https://smartstore.naver.com/seojunmom",            // 스토어 메인 (전체보기 버튼)
