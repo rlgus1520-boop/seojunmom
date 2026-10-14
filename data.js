@@ -1,8 +1,9 @@
 /* =========================================================
    서준엄마네 모바일 허브 페이지 — 운영자 수정 파일
    ---------------------------------------------------------
-   이 파일 하나만 고치면 페이지의 문구 / 상품 / 가격 / 링크 / 카테고리가
-   모두 바뀝니다. index.html 은 건드리지 않아도 됩니다.
+   상품·가격·할인·카테고리는 구글 시트에서 고칩니다. (이 파일 아래쪽 목록은 비상용)
+   이 파일에서는 배너 문구·사진, 검증 현장 사진, 고객센터 정보, 스토어 주소를 고칩니다.
+   index.html 은 건드리지 않아도 됩니다.
 
    수정 규칙
    - 따옴표(" ") 안의 글자만 바꾸세요. 따옴표와 쉼표는 지우지 마세요.
@@ -17,6 +18,15 @@
    ========================================================= */
 
 window.SITE = {
+
+  /* ---------- 구글 시트 (상품·카테고리는 여기서 읽어 옵니다) ----------
+     상품과 카테고리는 이제 구글 시트 "서준엄마네 웹사이트"에서 고칩니다.
+     아래 주소는 시트의 [파일 > 공유 > 웹에 게시]에서 만든 CSV 주소입니다.
+     누구나 볼 수 있는 공개 주소라서 비밀 정보가 아닙니다. 바꿀 일은 거의 없습니다. */
+  sheet: {
+    products:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=0&single=true&output=csv",
+    categories: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=1&single=true&output=csv"
+  },
 
   /* ---------- 스마트스토어 기본 주소 ---------- */
   store: {
@@ -53,9 +63,10 @@ window.SITE = {
     { image: "assets/photos/warehouse.jpg",      caption: "대량구매·물류창고 보관" }
   ],
 
-  /* ---------- 01 검증된 제품 보러가기 (6종, 한 달 주기 교체) ----------
-     originalPrice = 할인 전 가격, price = 특별가.
-     할인이 없으면 originalPrice 줄을 지우면 됩니다. */
+  /* ---------- 비상용 상품 목록 ----------
+     평소에는 쓰지 않습니다. 구글 시트를 읽지 못할 때(인터넷 문제, 게시 해제 등)만 이 목록이 보입니다.
+     상품을 바꿀 때는 구글 시트를 고치세요. 이 목록은 가끔 시트와 비슷하게 맞춰 두면 충분합니다.
+     originalPrice = 할인 전 가격, price = 특별가. */
   products: [
     {
       name: "[런칭특가] 서준엄마네 뼈없는 갈비탕 600g 4+1팩",
@@ -64,7 +75,7 @@ window.SITE = {
       price: 29500,
       category: "국·탕",
       image: "assets/products/galbitang.jpg",
-      url: "https://smartstore.naver.com/seojunmom/products/0000000001"
+      url: "https://smartstore.naver.com/seojunmom/products/12924699024"
     },
     {
       name: "[재구매율100%] 서준엄마네 감자탕 5kg",
@@ -113,8 +124,8 @@ window.SITE = {
     }
   ],
 
-  /* ---------- 03 카테고리 (스마트스토어 카테고리 주소로 연결) ----------
-     icon 은 assets/icons/ 폴더의 정사각형 이미지입니다. */
+  /* ---------- 비상용 카테고리 목록 ----------
+     평소에는 구글 시트의 카테고리 탭을 씁니다. 시트를 읽지 못할 때만 이 목록이 보입니다. */
   categories: [
     { name: "국·탕",     icon: "assets/icons/soup.png",   url: "https://smartstore.naver.com/seojunmom/category/00000001" },
     { name: "간편식",    icon: "assets/icons/meal.png",   url: "https://smartstore.naver.com/seojunmom/category/00000002" },

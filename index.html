@@ -201,6 +201,16 @@ button{font:inherit;letter-spacing:inherit}
 .footer .info{margin:20px 0 0;font-size:12px;line-height:1.7;color:var(--gray-text);text-align:center}
 .footer .info b{color:var(--black);font-weight:700}
 
+/* ---------- 시트 데이터용: 이미지 없음 / 가격 없음 / 불러오는 중 / 점검 화면 ---------- */
+.card img.noimg,.cats .ico img.noimg{object-fit:contain;padding:14%;background:var(--tangerine-6)}
+.card .price-ask{font-size:14px;font-weight:700;color:var(--gray-text)}
+li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background:var(--tangerine-6)}
+.products li.skel span{height:auto}
+.products li.skel::after{content:"";display:block;height:96px}
+#check{position:sticky;top:0;z-index:20;max-width:480px;margin:0 auto;padding:10px 14px;
+  background:#FFF8D6;border-bottom:1px solid #E8D88A;font-size:12px;line-height:1.6;color:var(--black)}
+#check ul{margin:4px 0 0;padding-left:18px}
+
 @media (prefers-reduced-motion:reduce){
   .hero .slides img{transition:none}
 }
@@ -227,7 +237,10 @@ button{font:inherit;letter-spacing:inherit}
 
   <section class="section" aria-labelledby="h-products">
     <h2 id="h-products"><span class="num">01</span>검증된 제품 보러가기</h2>
-    <ul class="products" id="products"></ul>
+    <ul class="products" id="products" aria-busy="true">
+      <li class="skel"><span></span></li><li class="skel"><span></span></li>
+      <li class="skel"><span></span></li><li class="skel"><span></span></li>
+    </ul>
   </section>
 
   <section class="section" aria-labelledby="h-gallery">
@@ -246,7 +259,9 @@ button{font:inherit;letter-spacing:inherit}
 
   <section class="section" aria-labelledby="h-cats">
     <h2 id="h-cats"><span class="num">03</span>카테고리</h2>
-    <ul class="cats" id="cats"></ul>
+    <ul class="cats" id="cats">
+      <li class="skel"><span></span></li><li class="skel"><span></span></li><li class="skel"><span></span></li>
+    </ul>
     <a class="all-btn" id="all-btn" href="#" target="_blank" rel="noopener">전체 상품 보러가기</a>
   </section>
 
@@ -259,6 +274,7 @@ button{font:inherit;letter-spacing:inherit}
 </div>
 
 <script src="data.js"></script>
+<script src="js/sheet.js"></script>
 <script>
 (function(){
   var S = window.SITE || {};
@@ -318,25 +334,44 @@ button{font:inherit;letter-spacing:inherit}
   });
   restart();
 
-  /* ---------- 01 검증된 제품 ---------- */
-  var pl = document.getElementById('products');
-  (S.products||[]).forEach(function(p){
-    var pricing = el('span',{class:'pricing'});
-    if (p.originalPrice && Number(p.originalPrice) > Number(p.price)) {
-      pricing.appendChild(el('span',{class:'was', text: won(p.originalPrice) + '원'}));
-      pricing.appendChild(el('span',{class:'tag', text:'특별가'}));
-    }
-    pricing.appendChild(el('span',{class:'price', html: won(p.price) + '<small>원</small>'}));
-    var a = ext(el('a',{class:'card', href:p.url, 'aria-label': p.name + ' 특가 구매하기'}, [
-      el('img',{src:p.image, alt:'', loading:'lazy'}),
-      p.category ? el('span',{class:'cat', text:p.category}) : null,
-      el('span',{class:'name', text:p.name}),
-      p.note ? el('span',{class:'note', text:p.note}) : null,
-      pricing,
-      el('span',{class:'go', text:'특가 구매하기'})
-    ]));
-    pl.appendChild(el('li', null, [a]));
-  });
+  /* ---------- 01 검증된 제품 (구글 시트 데이터로 그림) ---------- */
+  var LOGO = 'assets/brand/logo-vertical.png';
+  // 이미지가 없거나 안 열리면 로고로 바꿔 끼웁니다.
+  function safeImg(src, cls){
+    var img = el('img',{src: src || LOGO, alt:'', loading:'lazy'});
+    if (!src) img.className = 'noimg';
+    img.addEventListener('error', function(){
+      if (img.getAttribute('src') !== LOGO) { img.src = LOGO; img.className = 'noimg'; }
+    });
+    return img;
+  }
+  function renderProducts(list){
+    var pl = document.getElementById('products');
+    pl.innerHTML = '';
+    pl.removeAttribute('aria-busy');
+    list.forEach(function(p){
+      var pricing = el('span',{class:'pricing'});
+      var onSale = p.salePrice && p.listPrice && p.salePrice < p.listPrice;
+      if (onSale) {
+        pricing.appendChild(el('span',{class:'was', text: won(p.listPrice) + '원'}));
+        pricing.appendChild(el('span',{class:'tag', text:'특별가'}));
+        pricing.appendChild(el('span',{class:'price', html: won(p.salePrice) + '<small>원</small>'}));
+      } else if (p.listPrice || p.salePrice) {
+        pricing.appendChild(el('span',{class:'price', html: won(p.listPrice || p.salePrice) + '<small>원</small>'}));
+      } else {
+        pricing.appendChild(el('span',{class:'price-ask', text:'가격은 스토어에서 확인'}));
+      }
+      var a = ext(el('a',{class:'card', href: p.url || storeMain, 'aria-label': p.name + (onSale ? ' 특가 구매하기' : ' 구매하기')}, [
+        safeImg(p.image),
+        p.category ? el('span',{class:'cat', text:p.category}) : null,
+        el('span',{class:'name', text:p.name}),
+        p.note ? el('span',{class:'note', text:p.note}) : null,
+        pricing,
+        el('span',{class:'go', text: onSale ? '특가 구매하기' : '구매하기'})
+      ]));
+      pl.appendChild(el('li', null, [a]));
+    });
+  }
 
   /* ---------- 02 현장 사진 (가로 스크롤) ---------- */
   var g = document.getElementById('gallery');
@@ -365,18 +400,40 @@ button{font:inherit;letter-spacing:inherit}
   window.addEventListener('load', syncBar);
   syncBar();
 
-  /* ---------- 03 카테고리 ---------- */
-  var cl = document.getElementById('cats');
-  (S.categories||[]).forEach(function(c){
-    var ico = el('span',{class:'ico', 'aria-hidden':'true'});
-    if (c.icon) ico.appendChild(el('img',{src:c.icon, alt:'', loading:'lazy'}));
-    cl.appendChild(el('li', null, [
-      ext(el('a',{href:c.url, 'aria-label': c.name + ' 바로가기'}, [
-        ico,
-        el('span',{class:'cname',text:c.name}),
-        el('span',{class:'cgo',text:'바로가기'})
-      ]))
-    ]));
+  /* ---------- 03 카테고리 (구글 시트 데이터로 그림) ---------- */
+  function renderCategories(list){
+    var cl = document.getElementById('cats');
+    cl.innerHTML = '';
+    list.forEach(function(c){
+      var ico = el('span',{class:'ico', 'aria-hidden':'true'}, [ safeImg(c.icon) ]);
+      cl.appendChild(el('li', null, [
+        ext(el('a',{href: c.url || storeAll, 'aria-label': c.name + ' 바로가기'}, [
+          ico,
+          el('span',{class:'cname',text:c.name}),
+          el('span',{class:'cgo',text:'바로가기'})
+        ]))
+      ]));
+    });
+  }
+
+  /* ---------- 점검 화면: 주소 끝에 ?check 를 붙이면 데이터 출처와 문제 줄을 보여 줍니다 ---------- */
+  function renderCheck(d){
+    if (!new URLSearchParams(location.search).has('check')) return;
+    var box = document.getElementById('check') || document.body.insertBefore(el('div',{id:'check'}), document.body.firstChild);
+    var name = {sheet:'구글 시트 (최신)', cache:'이 휴대폰에 저장된 마지막 시트 데이터', fallback:'비상용 데이터 (data.js)'}[d.source] || d.source;
+    var html = '<b>데이터 출처:</b> ' + name + ' · 상품 ' + d.products.length + '개 · 카테고리 ' + d.categories.length + '개';
+    if (d.issues && d.issues.length) {
+      html += '<br><b>확인할 줄 ' + d.issues.length + '개</b><ul>' + d.issues.map(function(x){
+        return '<li>' + (x.row ? x.row + '번째 줄: ' : '') + x.msg.replace(/[<>&]/g,'') + '</li>';
+      }).join('') + '</ul>';
+    } else html += '<br>문제 있는 줄 없음';
+    box.innerHTML = html;
+  }
+
+  window.SheetData.start(S, function(d){
+    renderProducts(d.products);
+    renderCategories(d.categories);
+    renderCheck(d);
   });
 
   /* ---------- 하단: 고객센터 ---------- */
