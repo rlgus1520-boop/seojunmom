@@ -1,2 +1,7 @@
 .DS_Store
 node_modules/
+
+# 비밀 정보(API 키, 비밀번호)는 .env 에만 적고 GitHub에 올리지 않습니다
+.env
+.env.*
+!.env.example
