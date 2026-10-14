@@ -210,6 +210,9 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
 #check{position:sticky;top:0;z-index:20;max-width:480px;margin:0 auto;padding:10px 14px;
   background:#FFF8D6;border-bottom:1px solid #E8D88A;font-size:12px;line-height:1.6;color:var(--black)}
 #check ul{margin:4px 0 0;padding-left:18px}
+.products li.empty{grid-column:1/-1;padding:28px 12px;text-align:center;border-radius:var(--radius);background:var(--tangerine-6);color:var(--gray-text)}
+.products li.empty p{margin:0 0 8px}
+.products li.empty a{color:var(--tangerine);font-weight:700;text-decoration:underline}
 
 @media (prefers-reduced-motion:reduce){
   .hero .slides img{transition:none}
@@ -349,15 +352,23 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
     var pl = document.getElementById('products');
     pl.innerHTML = '';
     pl.removeAttribute('aria-busy');
+    if (!list.length) {
+      pl.appendChild(el('li',{class:'empty'}, [
+        el('p',{text:'새 제품을 준비하고 있어요.'}),
+        ext(el('a',{href:storeMain, text:'스마트스토어에서 전체 상품 보기'}))
+      ]));
+      return;
+    }
     list.forEach(function(p){
+      // 할인 여부와 표시 가격은 js/sheet.js 의 prepareProducts 가 오늘 날짜로 정해 줍니다.
       var pricing = el('span',{class:'pricing'});
-      var onSale = p.salePrice && p.listPrice && p.salePrice < p.listPrice;
+      var onSale = p.onSale;
       if (onSale) {
-        pricing.appendChild(el('span',{class:'was', text: won(p.listPrice) + '원'}));
+        pricing.appendChild(el('span',{class:'was', text: won(p.wasPrice) + '원'}));
         pricing.appendChild(el('span',{class:'tag', text:'특별가'}));
-        pricing.appendChild(el('span',{class:'price', html: won(p.salePrice) + '<small>원</small>'}));
-      } else if (p.listPrice || p.salePrice) {
-        pricing.appendChild(el('span',{class:'price', html: won(p.listPrice || p.salePrice) + '<small>원</small>'}));
+        pricing.appendChild(el('span',{class:'price', html: won(p.showPrice) + '<small>원</small>'}));
+      } else if (p.showPrice) {
+        pricing.appendChild(el('span',{class:'price', html: won(p.showPrice) + '<small>원</small>'}));
       } else {
         pricing.appendChild(el('span',{class:'price-ask', text:'가격은 스토어에서 확인'}));
       }
@@ -417,11 +428,16 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
   }
 
   /* ---------- 점검 화면: 주소 끝에 ?check 를 붙이면 데이터 출처와 문제 줄을 보여 줍니다 ---------- */
-  function renderCheck(d){
+  function renderCheck(d, shownP, shownC){
     if (!new URLSearchParams(location.search).has('check')) return;
     var box = document.getElementById('check') || document.body.insertBefore(el('div',{id:'check'}), document.body.firstChild);
     var name = {sheet:'구글 시트 (최신)', cache:'이 휴대폰에 저장된 마지막 시트 데이터', fallback:'비상용 데이터 (data.js)'}[d.source] || d.source;
-    var html = '<b>데이터 출처:</b> ' + name + ' · 상품 ' + d.products.length + '개 · 카테고리 ' + d.categories.length + '개';
+    var count = {on:0, before:0, after:0};
+    shownP.forEach(function(p){ if (count[p.saleState] != null) count[p.saleState]++; });
+    var html = '<b>데이터 출처:</b> ' + name + ' · 오늘(한국) ' + window.SheetData.todayKST() +
+      '<br>상품 ' + shownP.length + '개 보임 (숨김 ' + (d.products.length - shownP.length) + '개) · 할인 중 ' + count.on +
+      ' · 할인 예정 ' + count.before + ' · 할인 끝남 ' + count.after +
+      '<br>카테고리 ' + shownC.length + '개 보임 (숨김 ' + (d.categories.length - shownC.length) + '개)';
     if (d.issues && d.issues.length) {
       html += '<br><b>확인할 줄 ' + d.issues.length + '개</b><ul>' + d.issues.map(function(x){
         return '<li>' + (x.row ? x.row + '번째 줄: ' : '') + x.msg.replace(/[<>&]/g,'') + '</li>';
@@ -431,9 +447,12 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
   }
 
   window.SheetData.start(S, function(d){
-    renderProducts(d.products);
-    renderCategories(d.categories);
-    renderCheck(d);
+    var SD = window.SheetData;
+    var products = SD.prepareProducts(d.products);
+    var categories = SD.prepareCategories(d.categories);
+    renderProducts(products);
+    renderCategories(categories);
+    renderCheck(d, products, categories);
   });
 
   /* ---------- 하단: 고객센터 ---------- */

@@ -63,7 +63,7 @@
 
   // 순서 칸: 숫자가 아니면 null (null 은 맨 뒤로)
   function toOrder(v) {
-    var n = parseFloat(String(v || '').replace(/,/g, ''));
+    var n = parseFloat(String(v == null ? '' : v).replace(/,/g, '')); // 0 도 순서로 인정
     return isFinite(n) ? n : null;
   }
 
@@ -165,19 +165,82 @@
     var products = (S.products || []).map(function (p, i) {
       var hasSale = p.originalPrice && p.price && Number(p.originalPrice) > Number(p.price);
       return {
-        row: null, visible: true, order: i + 1,
+        row: null, visible: p.visible !== false, order: p.order != null ? toOrder(p.order) : i + 1,
         name: p.name || '', note: p.note || '', category: p.category || '',
         listPrice: toPrice(hasSale ? p.originalPrice : p.price),
         salePrice: hasSale ? toPrice(p.price) : null,
-        saleStart: null, saleEnd: null,
+        saleStart: toDate(p.saleStart), saleEnd: toDate(p.saleEnd),
         image: toImage(p.image), url: toLink(p.url)
       };
     }).filter(function (p) { return p.name; });
     var categories = (S.categories || []).map(function (c, i) {
-      return { row: null, visible: true, order: i + 1, name: c.name || '', icon: toImage(c.icon), url: toLink(c.url) };
+      return { row: null, visible: c.visible !== false, order: i + 1, name: c.name || '', icon: toImage(c.icon), url: toLink(c.url) };
     }).filter(function (c) { return c.name; });
     return { products: products, categories: categories, issues: [], source: 'fallback' };
   }
+
+  /* ---------- 3단계: 노출 · 순서 · 할인 기간 ----------
+     화면에 그리기 직전에 매번 계산합니다. 그래서 저장된 데이터를 쓸 때도
+     "오늘 날짜" 기준으로 할인 표시가 다시 판단됩니다. */
+
+  // 한국 시간 기준 오늘 날짜 "YYYY-MM-DD" (휴대폰 시간대가 달라도 한국 날짜로 계산)
+  function todayKST(now) {
+    var t = (now || new Date()).getTime() + 9 * 60 * 60 * 1000; // UTC+9
+    return new Date(t).toISOString().slice(0, 10);
+  }
+
+  // 노출 체크된 것만 남기고, 순서 숫자대로 정렬. 순서가 같거나 비면 시트에 적힌 순서대로.
+  function visibleSorted(list) {
+    return list
+      .map(function (x, i) { return { x: x, i: i }; })
+      .filter(function (w) { return w.x.visible; })
+      .sort(function (a, b) {
+        var ao = a.x.order, bo = b.x.order;
+        if (ao == null && bo == null) return a.i - b.i;
+        if (ao == null) return 1;   // 순서 빈칸은 맨 뒤
+        if (bo == null) return -1;
+        return ao - bo || a.i - b.i;
+      })
+      .map(function (w) { return w.x; });
+  }
+
+  // 오늘이 할인 기간 안인지 (종료일 당일까지 포함). 'before' / 'after' / 'in'
+  function period(p, today) {
+    if (p.saleStart && today < p.saleStart) return 'before';
+    if (p.saleEnd && today > p.saleEnd) return 'after';
+    return 'in';
+  }
+
+  // 할인 중인지: 할인가 < 정가 이고, 오늘이 기간 안
+  function saleState(p, today) {
+    if (!p.salePrice || !p.listPrice || p.salePrice >= p.listPrice) return 'none';
+    var w = period(p, today);
+    return w === 'in' ? 'on' : w;
+  }
+
+  // 화면용 상품 목록: 숨김 제외, 정렬, 가격 표시 방법 결정
+  function prepareProducts(list, today) {
+    today = today || todayKST();
+    return visibleSorted(list).map(function (p) {
+      var state = saleState(p, today);
+      var q = {};
+      for (var k in p) q[k] = p[k];
+      q.saleState = state;
+      q.onSale = state === 'on';
+      if (q.onSale) {
+        q.showPrice = p.salePrice; q.wasPrice = p.listPrice;
+      } else if (p.listPrice) {
+        q.showPrice = p.listPrice; q.wasPrice = null;               // 할인 전이거나 끝남 → 정가만
+      } else if (p.salePrice && period(p, today) === 'in') {
+        q.showPrice = p.salePrice; q.wasPrice = null;               // 정가 없이 할인가만 적혔고 기간 안
+      } else {
+        q.showPrice = null; q.wasPrice = null;                      // 가격을 알 수 없음
+      }
+      return q;
+    });
+  }
+
+  function prepareCategories(list) { return visibleSorted(list); }
 
   /* ---------- 휴대폰에 마지막 성공 데이터 저장 (다음 방문 때 바로 보여 주기) ---------- */
   function readCache() {
@@ -245,8 +308,9 @@
 
   root.SheetData = {
     start: start,
+    prepareProducts: prepareProducts, prepareCategories: prepareCategories, todayKST: todayKST, saleState: saleState,
     // 아래는 시험(tests/sheet-test.js)용으로 밖에서 쓸 수 있게 열어 둔 것
     parseCSV: parseCSV, parseSheet: parseSheet, fromFallback: fromFallback,
-    toPrice: toPrice, toDate: toDate, toLink: toLink, toImage: toImage, toBool: toBool
+    toPrice: toPrice, toOrder: toOrder, toDate: toDate, toLink: toLink, toImage: toImage, toBool: toBool
   };
 })(typeof window !== 'undefined' ? window : globalThis);

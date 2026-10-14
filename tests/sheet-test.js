@@ -56,5 +56,39 @@ let threw2 = false;
 try { S.parseSheet('', 'products'); } catch (e) { threw2 = true; }
 check('빈 시트면 오류', threw2, true);
 
+// 7. 3단계: 할인 기간 (오늘을 2026-10-15 로 고정해서 시험)
+const T = '2026-10-15';
+const base = { visible: true, order: 1, name: 'x', listPrice: 30000, salePrice: 20000, saleStart: null, saleEnd: null };
+const st = (o) => S.saleState(Object.assign({}, base, o), T);
+check('날짜 없음 → 할인 중', st({}), 'on');
+check('시작일이 내일 → 할인 예정', st({ saleStart: '2026-10-16' }), 'before');
+check('시작일이 오늘 → 할인 중', st({ saleStart: '2026-10-15' }), 'on');
+check('종료일이 오늘 → 오늘까지 할인 중', st({ saleEnd: '2026-10-15' }), 'on');
+check('종료일이 어제 → 할인 끝남', st({ saleEnd: '2026-10-14' }), 'after');
+check('할인가가 정가보다 높음 → 할인 아님', st({ salePrice: 40000 }), 'none');
+check('정가 없음 → 할인 표시 안 함', st({ listPrice: null }), 'none');
+
+const prep = S.prepareProducts([
+  Object.assign({}, base, { name: '끝난할인', order: 2, saleEnd: '2026-10-01' }),
+  Object.assign({}, base, { name: '숨김', order: 1, visible: false }),
+  Object.assign({}, base, { name: '진행중', order: 1 }),
+  Object.assign({}, base, { name: '순서없음', order: null }),
+  Object.assign({}, base, { name: '정가없이끝남', order: 3, listPrice: null, saleEnd: '2026-10-01' })
+], T);
+check('숨김 제외 + 순서 정렬 (빈 순서는 맨 뒤)', prep.map(p => p.name), ['진행중', '끝난할인', '정가없이끝남', '순서없음']);
+check('할인 중: 특별가 20000, 줄 그은 정가 30000', [prep[0].onSale, prep[0].showPrice, prep[0].wasPrice], [true, 20000, 30000]);
+check('할인 끝남: 정가 30000 만 표시', [prep[1].onSale, prep[1].showPrice, prep[1].wasPrice], [false, 30000, null]);
+check('정가 없이 할인만 적었는데 기간 끝남: 가격 숨김', prep[2].showPrice, null);
+
+check('순서 0 은 숫자 0 (빈칸 아님)', S.toOrder(0), 0);
+check('순서 "0" 은 숫자 0', S.toOrder('0'), 0);
+check('순서 빈칸은 null', S.toOrder(''), null);
+const prep0 = S.prepareProducts([Object.assign({}, base, { name: 'A', order: 1 }), Object.assign({}, base, { name: 'B', order: 0 })], T);
+check('순서 0 이 1 보다 앞', prep0.map(p => p.name), ['B', 'A']);
+
+// 8. 한국 날짜: UTC 2026-10-14 16:00 = 한국 2026-10-15 01:00
+check('한국 시간 기준 날짜', S.todayKST(new Date(Date.UTC(2026, 9, 14, 16, 0))), '2026-10-15');
+check('한국 시간 자정 직전', S.todayKST(new Date(Date.UTC(2026, 9, 14, 14, 59))), '2026-10-14');
+
 console.log(fail ? `\n실패 ${fail}개` : '\n모두 통과');
 process.exit(fail ? 1 : 0);
