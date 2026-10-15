@@ -1,8 +1,8 @@
 /* =========================================================
    서준엄마네 모바일 허브 페이지 — 운영자 수정 파일
    ---------------------------------------------------------
-   상품·가격·할인·카테고리는 구글 시트에서 고칩니다. (이 파일 아래쪽 목록은 비상용)
-   이 파일에서는 배너 문구·사진, 검증 현장 사진, 고객센터 정보, 스토어 주소를 고칩니다.
+   상품·가격·할인·카테고리·배너·검증 현장은 구글 시트에서 고칩니다. (이 파일의 같은 내용은 비상용)
+   이 파일에서는 고객센터 정보, 스토어 주소, 시트·클릭 기록기 주소를 고칩니다.
    index.html 은 건드리지 않아도 됩니다.
 
    수정 규칙
@@ -19,13 +19,16 @@
 
 window.SITE = {
 
-  /* ---------- 구글 시트 (상품·카테고리는 여기서 읽어 옵니다) ----------
-     상품과 카테고리는 이제 구글 시트 "서준엄마네 웹사이트"에서 고칩니다.
+  /* ---------- 구글 시트 (상품·카테고리·배너·검증 현장은 여기서 읽어 옵니다) ----------
+     상품, 카테고리, 배너 문구·사진, 검증 현장은 구글 시트 "서준엄마네 웹사이트"에서 고칩니다.
      아래 주소는 시트의 [파일 > 공유 > 웹에 게시]에서 만든 CSV 주소입니다.
      누구나 볼 수 있는 공개 주소라서 비밀 정보가 아닙니다. 바꿀 일은 거의 없습니다. */
   sheet: {
     products:   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=0&single=true&output=csv",
-    categories: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=1&single=true&output=csv"
+    categories: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=1&single=true&output=csv",
+    bannerText: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=6&single=true&output=csv",   // 배너 문구 탭
+    banner:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=5&single=true&output=csv",   // 배너 사진 탭
+    gallery:    "https://docs.google.com/spreadsheets/d/e/2PACX-1vSMgKVqXtyey4ffpYGYJK9fh1QJHXB0TXHZRda37MvJGzwJtwAX_Zp0_r2-VNFkg-AfY9riVWNFbLza/pub?gid=7&single=true&output=csv"    // 검증 현장 탭
   },
 
   /* ---------- 클릭 기록 ----------
@@ -55,7 +58,8 @@ window.SITE = {
     hours: "평일 10:00 ~ 17:00 (점심시간 12:00 ~ 13:30)"
   },
 
-  /* ---------- 메인 배너 ----------
+  /* ---------- 비상용 배너 ----------
+     평소에는 시트의 "배너 문구"·"배너 사진" 탭을 씁니다. 시트를 못 읽을 때만 아래 내용이 보입니다.
      왼쪽 문구는 고정, 사진은 2초마다 순서대로 바뀝니다.
      사진은 가로 780 x 세로 474 비율, 왼쪽이 밝게 처리된 사진을 씁니다. (배너 높이는 사진 비율을 따릅니다) */
   hero: {
@@ -69,7 +73,8 @@ window.SITE = {
     ]
   },
 
-  /* ---------- 02 실제 검증 현장 (옆으로 넘기는 사진) ----------
+  /* ---------- 비상용 검증 현장 사진 ----------
+     평소에는 시트의 "검증 현장" 탭을 씁니다. 시트를 못 읽을 때만 아래 사진이 보입니다.
      사진 비율은 가로 1000 x 세로 800 기준입니다. */
   gallery: [
     { image: "assets/photos/visit-kimchi.jpg",   caption: "제조사 생산 라인 방문" },

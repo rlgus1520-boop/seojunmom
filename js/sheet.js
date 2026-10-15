@@ -13,7 +13,7 @@
 (function (root) {
   'use strict';
 
-  var CACHE_KEY = 'sjm-sheet-v1';   // 휴대폰에 저장하는 이름
+  var CACHE_KEY = 'sjm-sheet-v2';   // 휴대폰에 저장하는 이름
   var TIMEOUT_MS = 6000;            // 시트가 6초 안에 안 오면 비상용 데이터로 먼저 그림
 
   /* ---------- CSV(쉼표로 구분된 글) 읽기 ----------
@@ -143,21 +143,60 @@
     return c;
   }
 
+  // 배너 사진 · 검증 현장 한 줄: 이미지가 없으면 건너뜀
+  function toPhoto(textKey, tabName) {
+    return function (o, rowNumber, issues) {
+      var raw = o['이미지 주소'];
+      var image = toImage(raw);
+      var text = o[textKey] || '';
+      if (!image) {
+        if (raw) issues.push({ row: rowNumber, msg: tabName + ': 이미지 주소 형식이 맞지 않아 이 줄을 건너뜀' });
+        else if (text) issues.push({ row: rowNumber, msg: tabName + ': 이미지 주소가 없어 이 줄을 건너뜀' });
+        return null;
+      }
+      return { row: rowNumber, visible: toBool(o['노출']), order: toOrder(o['순서']), image: image, text: text };
+    };
+  }
+
+  // 탭 종류별: 꼭 있어야 하는 제목, 탭 이름, 한 줄을 바꾸는 함수
+  var KINDS = {
+    products:   { required: '상품명',     tab: '상품',     make: toProduct },
+    categories: { required: '카테고리명', tab: '카테고리', make: toCategory },
+    banner:     { required: '이미지 주소', tab: '배너 사진', make: toPhoto('사진 설명', '배너 사진') },
+    gallery:    { required: '이미지 주소', tab: '검증 현장', make: toPhoto('설명', '검증 현장') }
+  };
+
   // 시트 CSV 글 전체 → { list, issues }. 꼭 있어야 하는 제목이 없으면 오류를 냅니다.
   function parseSheet(text, kind) {
+    var K = KINDS[kind];
     var t = toRecords(parseCSV(text));
-    var required = kind === 'products' ? '상품명' : '카테고리명';
-    if (t.header.indexOf(required) < 0) {
-      throw new Error((kind === 'products' ? '상품' : '카테고리') + ' 탭 제목줄에 "' + required + '" 칸이 없습니다');
+    if (t.header.indexOf(K.required) < 0) {
+      throw new Error(K.tab + ' 탭 제목줄에 "' + K.required + '" 칸이 없습니다');
     }
     var issues = [];
-    var make = kind === 'products' ? toProduct : toCategory;
+    var make = K.make;
     var list = [];
     t.records.forEach(function (o, i) {
       var item = make(o, i + 2, issues); // 시트의 줄 번호 = 제목줄(1) 다음부터
       if (item) list.push(item);
     });
     return { list: list, issues: issues };
+  }
+
+  // 배너 문구 탭: "항목 / 내용" 두 칸. 큰 문구가 비면 null (비상용 문구를 씀)
+  function parseHeroText(text) {
+    var t = toRecords(parseCSV(text));
+    if (t.header.indexOf('항목') < 0 || t.header.indexOf('내용') < 0) {
+      throw new Error('배너 문구 탭 제목줄에 "항목", "내용" 칸이 없습니다');
+    }
+    var map = {};
+    t.records.forEach(function (o) { if (o['항목']) map[o['항목']] = o['내용'] || ''; });
+    var sec = parseFloat(map['사진 바뀌는 간격(초)']);
+    return {
+      headline: map['큰 문구'] || null,
+      sub: map['작은 문구'] != null ? map['작은 문구'] : null,
+      interval: isFinite(sec) ? Math.min(10, Math.max(1, sec)) * 1000 : null
+    };
   }
 
   /* ---------- data.js 의 비상용 목록을 같은 모양으로 바꾸기 ---------- */
@@ -176,7 +215,18 @@
     var categories = (S.categories || []).map(function (c, i) {
       return { row: null, visible: c.visible !== false, order: i + 1, name: c.name || '', icon: toImage(c.icon), url: toLink(c.url) };
     }).filter(function (c) { return c.name; });
-    return { products: products, categories: categories, issues: [], source: 'fallback' };
+    var H = S.hero || {};
+    var hero = {
+      headline: H.headline || '', sub: H.sub || '', interval: H.interval || 2000,
+      images: (H.images || []).map(function (im, i) {
+        return { row: null, visible: im.visible !== false, order: i + 1, image: toImage(im.src || im.image), text: im.alt || '' };
+      }).filter(function (x) { return x.image; })
+    };
+    var gallery = (S.gallery || []).map(function (g, i) {
+      return { row: null, visible: g.visible !== false, order: i + 1, image: toImage(g.image), text: g.caption || '' };
+    }).filter(function (x) { return x.image; });
+    return { products: products, categories: categories, hero: hero, gallery: gallery, issues: [], source: 'fallback',
+             parts: { products: 'fallback', categories: 'fallback', banner: 'fallback', bannerText: 'fallback', gallery: 'fallback' } };
   }
 
   /* ---------- 3단계: 노출 · 순서 · 할인 기간 ----------
@@ -242,6 +292,12 @@
 
   function prepareCategories(list) { return visibleSorted(list); }
 
+  // 배너 사진·검증 현장: 숨김 제외, 순서 정렬. 하나도 안 남으면 비상용 사진을 씀
+  function preparePhotos(list, fallbackList) {
+    var shown = visibleSorted(list || []);
+    return shown.length ? shown : visibleSorted(fallbackList || []);
+  }
+
   /* ---------- 휴대폰에 마지막 성공 데이터 저장 (다음 방문 때 바로 보여 주기) ---------- */
   function readCache() {
     try {
@@ -252,7 +308,7 @@
   }
   function writeCache(d) {
     try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), products: d.products, categories: d.categories }));
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), products: d.products, categories: d.categories, hero: d.hero, gallery: d.gallery }));
     } catch (e) {}
   }
 
@@ -278,23 +334,58 @@
     if (params.has('fallback') || !sheet.products) { draw(fallback); return; }
 
     var cached = readCache();
-    if (cached) draw({ products: cached.products, categories: cached.categories || fallback.categories, issues: [], source: 'cache' });
+    if (cached) draw({
+      products: cached.products, categories: cached.categories || fallback.categories,
+      hero: cached.hero || fallback.hero, gallery: cached.gallery || fallback.gallery,
+      issues: [], source: 'cache', parts: {}
+    });
 
     var timer = setTimeout(function () { if (!drawn) draw(fallback); }, TIMEOUT_MS);
 
+    // 상품 탭은 꼭 있어야 하고, 나머지 탭은 못 읽으면 그 부분만 비상용 데이터를 씁니다.
+    function optional(url) {
+      return url ? fetchText(url).catch(function (e) { console.warn('[시트] ' + e.message); return null; }) : Promise.resolve(null);
+    }
+    function tryParse(text, fn) {
+      if (text == null) return null;
+      try { return fn(text); } catch (e) { console.warn('[시트] ' + e.message); return null; }
+    }
+
     Promise.all([
       fetchText(sheet.products),
-      sheet.categories ? fetchText(sheet.categories) : Promise.resolve(null)
+      optional(sheet.categories),
+      optional(sheet.bannerText),
+      optional(sheet.banner),
+      optional(sheet.gallery)
     ]).then(function (res) {
       var p = parseSheet(res[0], 'products');
       if (!p.list.length) throw new Error('상품 탭에 상품이 하나도 없습니다');
-      var c = null;
-      try { c = res[1] ? parseSheet(res[1], 'categories') : null; } catch (e) { console.warn('[시트] ' + e.message); }
+      var c = tryParse(res[1], function (t) { return parseSheet(t, 'categories'); });
+      var ht = tryParse(res[2], parseHeroText);
+      var b = tryParse(res[3], function (t) { return parseSheet(t, 'banner'); });
+      var g = tryParse(res[4], function (t) { return parseSheet(t, 'gallery'); });
+
+      var parts = {
+        products: 'sheet',
+        categories: c && c.list.length ? 'sheet' : 'fallback',
+        bannerText: ht && ht.headline ? 'sheet' : 'fallback',
+        banner: b && b.list.length ? 'sheet' : 'fallback',
+        gallery: g && g.list.length ? 'sheet' : 'fallback'
+      };
+      var hero = {
+        headline: parts.bannerText === 'sheet' ? ht.headline : fallback.hero.headline,
+        sub: parts.bannerText === 'sheet' && ht.sub != null ? ht.sub : fallback.hero.sub,
+        interval: (ht && ht.interval) || fallback.hero.interval,
+        images: parts.banner === 'sheet' ? b.list : fallback.hero.images
+      };
       var data = {
         products: p.list,
-        categories: c && c.list.length ? c.list : fallback.categories,
-        issues: p.issues.concat(c ? c.issues : []),
-        source: 'sheet'
+        categories: parts.categories === 'sheet' ? c.list : fallback.categories,
+        hero: hero,
+        gallery: parts.gallery === 'sheet' ? g.list : fallback.gallery,
+        issues: [].concat(p.issues, c ? c.issues : [], b ? b.issues : [], g ? g.issues : []),
+        source: 'sheet',
+        parts: parts
       };
       clearTimeout(timer);
       writeCache(data);
@@ -308,7 +399,7 @@
 
   root.SheetData = {
     start: start,
-    prepareProducts: prepareProducts, prepareCategories: prepareCategories, todayKST: todayKST, saleState: saleState,
+    prepareProducts: prepareProducts, prepareCategories: prepareCategories, preparePhotos: preparePhotos, parseHeroText: parseHeroText, todayKST: todayKST, saleState: saleState,
     // 아래는 시험(tests/sheet-test.js)용으로 밖에서 쓸 수 있게 열어 둔 것
     parseCSV: parseCSV, parseSheet: parseSheet, fromFallback: fromFallback,
     toPrice: toPrice, toOrder: toOrder, toDate: toDate, toLink: toLink, toImage: toImage, toBool: toBool

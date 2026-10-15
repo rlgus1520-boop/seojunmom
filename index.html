@@ -101,6 +101,7 @@ button{font:inherit;letter-spacing:inherit}
   width:7px;height:7px;border-radius:50%;border:0;padding:0;background:var(--gray);cursor:pointer;
 }
 .hero .dots button.is-active{background:var(--tangerine);width:18px;border-radius:4px}
+.hero .dots[hidden]{display:none}
 
 /* ---------- 공통 섹션 제목: 번호만 굵고 주황 ---------- */
 .section{padding:30px var(--gutter) 8px}
@@ -306,27 +307,10 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
   allBtn.href = nv(storeAll, '전체 상품');
   allBtn.setAttribute('data-track','전체상품'); allBtn.setAttribute('data-name','전체 상품 보러가기');
 
-  /* ---------- 메인 배너 ---------- */
-  var H = S.hero || {};
-  document.getElementById('hero-h1').textContent = H.headline || '';
-  document.getElementById('hero-sub').textContent = H.sub || '';
+  /* ---------- 메인 배너 (구글 시트 "배너 문구"·"배너 사진" 탭으로 그림) ---------- */
   var slidesBox = document.getElementById('slides');
   var dotsBox = document.getElementById('dots');
-  var imgs = H.images || [];
-  var slides = imgs.map(function(im, i){
-    var img = el('img', {src: im.src, alt: im.alt || '', 'aria-hidden': i ? 'true' : 'false'});
-    if (i === 0) img.className = 'is-active';
-    slidesBox.appendChild(img);
-    return img;
-  });
-  var dots = imgs.map(function(im, i){
-    var b = el('button', {type:'button', 'aria-label': (i+1) + '번째 사진'});
-    if (i === 0) b.className = 'is-active';
-    b.addEventListener('click', function(){ show(i); restart(); });
-    dotsBox.appendChild(el('li', null, [b]));
-    return b;
-  });
-  var cur = 0, timer = null;
+  var slides = [], dots = [], cur = 0, timer = null, heroInterval = 2000;
   function show(i){
     if (!slides.length) return;
     slides[cur].className = ''; dots[cur].className = '';
@@ -337,12 +321,35 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
   }
   function restart(){
     if (timer) clearInterval(timer);
-    if (slides.length > 1) timer = setInterval(function(){ show(cur + 1); }, H.interval || 2000);
+    timer = null;
+    if (slides.length > 1) timer = setInterval(function(){ show(cur + 1); }, heroInterval);
   }
   document.addEventListener('visibilitychange', function(){
     if (document.hidden) { clearInterval(timer); timer = null; } else restart();
   });
-  restart();
+  function renderHero(h, images){
+    document.getElementById('hero-h1').textContent = h.headline || '';
+    document.getElementById('hero-sub').textContent = h.sub || '';
+    heroInterval = h.interval || 2000;
+    slidesBox.innerHTML = ''; dotsBox.innerHTML = '';
+    cur = 0;
+    slides = images.map(function(im, i){
+      var img = el('img', {src: im.image, alt: im.text || '', 'aria-hidden': i ? 'true' : 'false'});
+      if (i === 0) img.className = 'is-active';
+      img.addEventListener('error', function(){ img.style.visibility = 'hidden'; }); // 깨진 사진은 숨기고 배경색만
+      slidesBox.appendChild(img);
+      return img;
+    });
+    dots = images.map(function(im, i){
+      var b = el('button', {type:'button', 'aria-label': (i+1) + '번째 사진'});
+      if (i === 0) b.className = 'is-active';
+      b.addEventListener('click', function(){ show(i); restart(); });
+      dotsBox.appendChild(el('li', null, [b]));
+      return b;
+    });
+    dotsBox.hidden = images.length < 2;
+    restart();
+  }
 
   /* ---------- 01 검증된 제품 (구글 시트 데이터로 그림) ---------- */
   var LOGO = 'assets/brand/logo-vertical.png';
@@ -392,23 +399,28 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
     });
   }
 
-  /* ---------- 02 현장 사진 (가로 스크롤) ---------- */
+  /* ---------- 02 현장 사진 (구글 시트 "검증 현장" 탭으로 그림, 가로 스크롤) ---------- */
   var g = document.getElementById('gallery');
-  (S.gallery||[]).forEach(function(ph){
-    g.appendChild(el('li', null, [
-      el('figure', null, [
-        el('img',{src:ph.image, alt:ph.caption, loading:'lazy'}),
-        el('figcaption',{text:ph.caption})
-      ])
-    ]));
-  });
   var prev = document.getElementById('g-prev'), next = document.getElementById('g-next'), thumb = document.getElementById('g-thumb');
+  function renderGallery(list){
+    g.innerHTML = '';
+    list.forEach(function(ph){
+      var img = el('img',{src:ph.image, alt:ph.text || '검증 현장 사진', loading:'lazy'});
+      img.addEventListener('error', function(){ var li = img.closest('li'); if (li) li.remove(); syncBar(); }); // 깨진 사진 칸은 빼기
+      g.appendChild(el('li', null, [
+        el('figure', null, [ img, ph.text ? el('figcaption',{text:ph.text}) : null ])
+      ]));
+    });
+    g.scrollLeft = 0;
+    syncBar();
+  }
   function stepW(){ var li = g.querySelector('li'); return li ? li.getBoundingClientRect().width + 12 : 200; }
   function syncBar(){
     var max = g.scrollWidth - g.clientWidth;
-    var ratio = g.clientWidth / g.scrollWidth;
-    thumb.style.width = Math.max(ratio * 100, 12) + '%';
-    thumb.style.left = (max > 0 ? (g.scrollLeft / max) * (100 - Math.max(ratio * 100, 12)) : 0) + '%';
+    var ratio = g.scrollWidth ? g.clientWidth / g.scrollWidth : 1;
+    var w = Math.min(100, Math.max(ratio * 100, 12));
+    thumb.style.width = w + '%';
+    thumb.style.left = (max > 0 ? (g.scrollLeft / max) * (100 - w) : 0) + '%';
     prev.disabled = g.scrollLeft <= 2;
     next.disabled = g.scrollLeft >= max - 2;
   }
@@ -417,7 +429,6 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
   g.addEventListener('scroll', syncBar, {passive:true});
   window.addEventListener('resize', syncBar);
   window.addEventListener('load', syncBar);
-  syncBar();
 
   /* ---------- 03 카테고리 (구글 시트 데이터로 그림) ---------- */
   function renderCategories(list){
@@ -436,7 +447,7 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
   }
 
   /* ---------- 점검 화면: 주소 끝에 ?check 를 붙이면 데이터 출처와 문제 줄을 보여 줍니다 ---------- */
-  function renderCheck(d, shownP, shownC){
+  function renderCheck(d, shownP, shownC, shownB, shownG){
     if (!new URLSearchParams(location.search).has('check')) return;
     var box = document.getElementById('check') || document.body.insertBefore(el('div',{id:'check'}), document.body.firstChild);
     var name = {sheet:'구글 시트 (최신)', cache:'이 휴대폰에 저장된 마지막 시트 데이터', fallback:'비상용 데이터 (data.js)'}[d.source] || d.source;
@@ -445,7 +456,12 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
     var html = '<b>데이터 출처:</b> ' + name + ' · 오늘(한국) ' + window.SheetData.todayKST() +
       '<br>상품 ' + shownP.length + '개 보임 (숨김 ' + (d.products.length - shownP.length) + '개) · 할인 중 ' + count.on +
       ' · 할인 예정 ' + count.before + ' · 할인 끝남 ' + count.after +
-      '<br>카테고리 ' + shownC.length + '개 보임 (숨김 ' + (d.categories.length - shownC.length) + '개)';
+      '<br>카테고리 ' + shownC.length + '개 보임 (숨김 ' + (d.categories.length - shownC.length) + '개)' +
+      '<br>배너 사진 ' + shownB.length + '장 · 검증 현장 사진 ' + shownG.length + '장';
+    var P = d.parts || {};
+    var off = [['bannerText','배너 문구'],['banner','배너 사진'],['gallery','검증 현장'],['categories','카테고리']]
+      .filter(function(x){ return d.source === 'sheet' && P[x[0]] === 'fallback'; }).map(function(x){ return x[1]; });
+    if (off.length) html += '<br><b>시트에서 못 읽어 비상용 데이터를 쓰는 탭:</b> ' + off.join(', ') + ' (웹에 게시 설정 확인)';
     if (d.issues && d.issues.length) {
       html += '<br><b>확인할 줄 ' + d.issues.length + '개</b><ul>' + d.issues.map(function(x){
         return '<li>' + (x.row ? x.row + '번째 줄: ' : '') + x.msg.replace(/[<>&]/g,'') + '</li>';
@@ -454,13 +470,27 @@ li.skel span{display:block;aspect-ratio:1;border-radius:var(--radius);background
     box.innerHTML = html;
   }
 
+  // 같은 내용이면 다시 그리지 않음 (저장된 데이터 → 최신 시트 순으로 두 번 불릴 때 배너가 처음으로 튀지 않게)
+  var lastDrawn = {};
+  function changed(key, value){
+    var sig = JSON.stringify(value);
+    if (lastDrawn[key] === sig) return false;
+    lastDrawn[key] = sig; return true;
+  }
+
   window.SheetData.start(S, function(d){
     var SD = window.SheetData;
+    var fb = SD.fromFallback(S);
     var products = SD.prepareProducts(d.products);
     var categories = SD.prepareCategories(d.categories);
-    renderProducts(products);
-    renderCategories(categories);
-    renderCheck(d, products, categories);
+    var heroImages = SD.preparePhotos(d.hero && d.hero.images, fb.hero.images);
+    var gallery = SD.preparePhotos(d.gallery, fb.gallery);
+    var hero = d.hero || fb.hero;
+    if (changed('hero', [hero.headline, hero.sub, hero.interval, heroImages])) renderHero(hero, heroImages);
+    if (changed('products', products)) renderProducts(products);
+    if (changed('gallery', gallery)) renderGallery(gallery);
+    if (changed('categories', categories)) renderCategories(categories);
+    renderCheck(d, products, categories, heroImages, gallery);
   });
 
   /* ---------- 하단: 고객센터 ---------- */

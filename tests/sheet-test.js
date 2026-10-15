@@ -90,6 +90,29 @@ check('순서 0 이 1 보다 앞', prep0.map(p => p.name), ['B', 'A']);
 check('한국 시간 기준 날짜', S.todayKST(new Date(Date.UTC(2026, 9, 14, 16, 0))), '2026-10-15');
 check('한국 시간 자정 직전', S.todayKST(new Date(Date.UTC(2026, 9, 14, 14, 59))), '2026-10-14');
 
+// 10. 배너 문구 · 배너 사진 · 검증 현장
+const ht = S.parseHeroText('항목,내용,안내\n큰 문구,"맛있게\n드시기만 하세요.",x\n작은 문구,조리 전문가가,y\n사진 바뀌는 간격(초),3,z');
+check('배너 큰 문구 (칸 안 줄바꿈 유지)', ht.headline, '맛있게\n드시기만 하세요.');
+check('배너 작은 문구', ht.sub, '조리 전문가가');
+check('사진 간격 3초 = 3000', ht.interval, 3000);
+check('사진 간격 99초는 10초로 제한', S.parseHeroText('항목,내용\n큰 문구,a\n사진 바뀌는 간격(초),99').interval, 10000);
+check('큰 문구가 비면 null (비상용 문구 사용)', S.parseHeroText('항목,내용\n큰 문구,\n작은 문구,b').headline, null);
+let thr = false; try { S.parseHeroText('이름,값\n큰 문구,a'); } catch (e) { thr = true; }
+check('배너 문구 제목줄이 바뀌면 오류', thr, true);
+
+const bn = S.parseSheet('노출,순서,이미지 주소,사진 설명,입력 확인\nTRUE,2,assets/banner/banner-1.jpg,감자탕,정상\nTRUE,1,https://shop-phinf.pstatic.net/x.jpg,갈비탕,정상\nTRUE,3,,설명만,\nTRUE,4,http://bad.jpg,,\nFALSE,,,,', 'banner');
+check('배너 사진: 이미지 없는 줄·http 줄 제외', bn.list.length, 2);
+check('배너 사진: 문제 줄 알림 2개', bn.issues.length, 2);
+check('배너 사진: 순서대로 정렬', S.preparePhotos(bn.list).map(x => x.text), ['갈비탕', '감자탕']);
+const fbList = [{ visible: true, order: 1, image: 'assets/a.jpg', text: '비상' }];
+check('모두 숨기면 비상용 사진 사용', S.preparePhotos([{ visible: false, order: 1, image: 'x', text: '숨김' }], fbList).map(x => x.text), ['비상']);
+const gl = S.parseSheet('노출,순서,이미지 주소,설명,입력 확인\nTRUE,1,assets/photos/a.jpg,공장 방문,정상\nFALSE,2,assets/photos/b.jpg,숨긴 사진,정상', 'gallery');
+check('검증 현장: 설명을 text 로', gl.list[0].text, '공장 방문');
+check('검증 현장: 숨김 반영', S.preparePhotos(gl.list).length, 1);
+const fb2 = S.fromFallback({ hero: { headline: 'h', images: [{ src: 'assets/banner/banner-1.jpg', alt: 'a' }] }, gallery: [{ image: 'assets/photos/a.jpg', caption: 'c' }] });
+check('비상용: 배너 사진 변환', [fb2.hero.images[0].image, fb2.hero.images[0].text], ['assets/banner/banner-1.jpg', 'a']);
+check('비상용: 검증 현장 변환', [fb2.gallery[0].image, fb2.gallery[0].text], ['assets/photos/a.jpg', 'c']);
+
 // 9. 4단계: 네이버 유입 표시
 require('../js/track.js');
 const TR = globalThis.Track;
